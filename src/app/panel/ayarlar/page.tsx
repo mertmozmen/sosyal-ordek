@@ -9,7 +9,7 @@ import { AVATAR_RENKLER } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
 export default function Ayarlar() {
-  const { kullanici, ayarGuncelle, verileriSifirla, cikis } = useStore();
+  const { kullanici, ayarGuncelle, verileriSifirla, cikis, sifreDegistir } = useStore();
   const router = useRouter();
   const [kaydedildi, setKaydedildi] = useState(false);
   const [yeniSifre, setYeniSifre] = useState("");
@@ -147,14 +147,14 @@ export default function Ayarlar() {
           />
           <button
             className="btn btn-lacivert btn-md"
-            onClick={() => {
+            onClick={async () => {
               if (yeniSifre.length < 6) {
                 setSifreMesaj("Şifre en az 6 karakter olmalı.");
                 return;
               }
-              kaydet({ sifre: yeniSifre });
+              const sonuc = await sifreDegistir(yeniSifre);
               setYeniSifre("");
-              setSifreMesaj("Şifren güncellendi!");
+              setSifreMesaj(sonuc.ok ? "Şifren güncellendi!" : (sonuc.hata ?? "Bir şeyler ters gitti."));
             }}
           >
             Güncelle

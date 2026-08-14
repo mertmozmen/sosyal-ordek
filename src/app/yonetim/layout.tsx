@@ -45,9 +45,11 @@ export default function YonetimLayout({ children }: { children: React.ReactNode 
           </div>
           <form
             className="mt-6 space-y-4"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              if (!yoneticiGiris(sifre)) setHata("Şifre yanlış, vak! Tekrar dene.");
+              setHata("Kaptan köşküne çıkılıyor...");
+              const ok = await yoneticiGiris(sifre);
+              setHata(ok ? "" : "Şifre yanlış, vak! Tekrar dene.");
             }}
           >
             <div>

@@ -67,13 +67,23 @@ export function VakvakRehber() {
     zamanlayicilar.current.push(setTimeout(fn, ms));
   };
 
-  // İlk ziyarette turu kendiliğinden başlat
+  // Tanıtım videosu kapatılınca (ya da daha önce izlenmişse ilk ziyarette) turu başlat
   useEffect(() => {
     const goruldu = localStorage.getItem("so_rehber_goruldu");
+    const videoIzlendi = localStorage.getItem("so_giris_videosu");
     const t = setTimeout(() => {
-      if (!goruldu) setAcik(true);
+      if (!goruldu && videoIzlendi) setAcik(true);
     }, 1500);
-    return () => clearTimeout(t);
+    const videodanSonra = () => {
+      // Tanıtım videosu her kapandığında Vakvak turu devralır
+      setAdim(0);
+      setTimeout(() => setAcik(true), 700);
+    };
+    window.addEventListener("so:video-kapandi", videodanSonra);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("so:video-kapandi", videodanSonra);
+    };
   }, []);
 
   // Boştayken ara ara "Vak!" desin

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoDikey, OrdekKafa } from "@/components/Logo";
 import { VakvakRehber } from "@/components/VakvakRehber";
+import { GirisVideosu, TanitimButonu } from "@/components/GirisVideosu";
 import { Belir, Dalga } from "@/components/efektler";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { DERSLER, HOCALAR, SSS } from "@/lib/data";
@@ -105,9 +106,7 @@ export default function AnaSayfa() {
               <Link href="/on-gorusme" className="btn btn-amber btn-lg">
                 <Ikon ad="tel" boy={19} /> Ücretsiz Ön Görüşme
               </Link>
-              <a href="#nedir" className="btn btn-ghost btn-lg">
-                Platformu Keşfet
-              </a>
+              <TanitimButonu />
             </div>
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-lacivert/75">
               {["28 haftalık plan", "5 branş, uzman hocalar", "En fazla 12 kişilik sınıflar"].map(
@@ -360,6 +359,7 @@ export default function AnaSayfa() {
         </Belir>
       </section>
 
+      <GirisVideosu />
       <VakvakRehber />
     </>
   );

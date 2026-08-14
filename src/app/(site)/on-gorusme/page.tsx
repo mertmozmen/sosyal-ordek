@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
+import { useStore } from "@/lib/store";
 
 const SAATLER = ["Hafta içi 16:00-18:00", "Hafta içi 18:00-20:00", "Cumartesi 10:00-13:00", "Pazar 14:00-17:00"];
 
 export default function OnGorusme() {
+  const { gorusmeTalebiGonder } = useStore();
   const [gonderildi, setGonderildi] = useState(false);
   const [form, setForm] = useState({
     veliAd: "",
@@ -20,7 +22,7 @@ export default function OnGorusme() {
   });
   const [hata, setHata] = useState("");
 
-  const gonder = (e: React.FormEvent) => {
+  const gonder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.veliAd || !form.ogrenciAd || !form.telefon) {
       setHata("Lütfen isim ve telefon alanlarını doldurun.");
@@ -30,9 +32,14 @@ export default function OnGorusme() {
       setHata("Devam etmek için KVKK Aydınlatma Metni'ni onaylamanız gerekiyor.");
       return;
     }
-    const talepler = JSON.parse(localStorage.getItem("so_ongorusme") ?? "[]");
-    talepler.push({ ...form, tarih: new Date().toISOString() });
-    localStorage.setItem("so_ongorusme", JSON.stringify(talepler));
+    await gorusmeTalebiGonder({
+      veliAd: form.veliAd,
+      ogrenciAd: form.ogrenciAd,
+      sinif: form.sinif,
+      telefon: form.telefon,
+      saat: form.saat,
+      not: form.not,
+    });
     setGonderildi(true);
   };
 
@@ -50,7 +57,7 @@ export default function OnGorusme() {
             {form.saat}" aralığında bir görüşme planlayacak.
           </p>
           <p className="mt-3 text-sm text-ink/50">
-            Bu bir demo: talep şimdilik yalnızca tarayıcınıza kaydedildi.
+            Talebiniz sistemimize kaydedildi; ekibimiz yönetim panelinden görüyor.
           </p>
           <Link href="/" className="btn btn-amber btn-lg mt-8">
             Ana sayfaya dön

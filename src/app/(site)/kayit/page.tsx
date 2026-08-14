@@ -21,8 +21,10 @@ export default function Kayit() {
     kosullar: false,
   });
   const [hata, setHata] = useState("");
+  const [bekliyor, setBekliyor] = useState(false);
+  const [dogrulamaBekliyor, setDogrulamaBekliyor] = useState(false);
 
-  const gonder = (e: React.FormEvent) => {
+  const gonder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.ad || !form.email || !form.sifre) {
       setHata("İsim, e-posta ve şifre alanları zorunlu.");
@@ -36,19 +38,46 @@ export default function Kayit() {
       setHata("Devam etmek için üç onay kutusunu da işaretlemen gerekiyor.");
       return;
     }
-    const sonuc = kayitOl({
+    setBekliyor(true);
+    const sonuc = await kayitOl({
       ad: form.ad.trim(),
       email: form.email.trim().toLowerCase(),
       sifre: form.sifre,
       sinif: form.sinif,
       veliTel: form.veliTel,
     });
+    setBekliyor(false);
     if (!sonuc.ok) {
       setHata(sonuc.hata ?? "Bir şeyler ters gitti.");
       return;
     }
+    if (sonuc.dogrulamaGerekli) {
+      setDogrulamaBekliyor(true);
+      return;
+    }
     router.push("/panel/hocani-tani?hosgeldin=1");
   };
+
+  if (dogrulamaBekliyor) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16">
+        <div className="card p-8 text-center">
+          <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-cream-deep">
+            <OrdekKafa boy={68} className="animate-bob" />
+          </span>
+          <h1 className="baslik mt-4 text-2xl">Bir adım kaldı!</h1>
+          <p className="mt-3 text-sm leading-relaxed text-ink/70">
+            <strong>{form.email}</strong> adresine bir doğrulama bağlantısı gönderdik. Gelen
+            kutunu (ve gereksiz klasörünü) kontrol edip bağlantıya tıkla; sonra{" "}
+            <Link href="/giris" className="font-bold text-amber-deep hover:underline">
+              giriş yap
+            </Link>{" "}
+            ve göle dal!
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-14">
@@ -131,8 +160,8 @@ export default function Kayit() {
             <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600">{hata}</p>
           )}
 
-          <button type="submit" className="btn btn-amber btn-lg w-full">
-            <Ikon ad="yumurta" boy={18} /> Kaydımı Oluştur
+          <button type="submit" disabled={bekliyor} className="btn btn-amber btn-lg w-full">
+            <Ikon ad="yumurta" boy={18} /> {bekliyor ? "Yumurta çatlıyor..." : "Kaydımı Oluştur"}
           </button>
         </form>
 

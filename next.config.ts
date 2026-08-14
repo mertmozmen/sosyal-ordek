@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 // GitHub Pages, siteyi https://<kullanici>.github.io/<repo>/ altında servis eder;
-// BASE_PATH ortam değişkeni yalnızca Pages derlemesinde (CI) set edilir.
-const basePath = process.env.BASE_PATH || undefined;
+// NEXT_PUBLIC_BASE_PATH yalnızca Pages derlemesinde (CI) set edilir ve istemci
+// tarafında medya yollarını çözmek için de kullanılır.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || undefined;
 
 const nextConfig: NextConfig = {
   output: "export",

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { OrdekKafa } from "./Logo";
 import { Ikon } from "./ikonlar";
+import { medyaYolu } from "@/lib/supabase";
+import { useStore } from "@/lib/store";
 
 type Props = {
   acik: boolean;
@@ -13,39 +14,40 @@ type Props = {
 };
 
 export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props) {
-  const [oynuyor, setOynuyor] = useState(false);
-  const [yuzde, setYuzde] = useState(0);
-  const bittiRef = useRef(false);
+  const { siteAyarlar } = useStore();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [bitti, setBitti] = useState(false);
+  const enCokOran = useRef(0);
+  const sayildi = useRef(false);
+
+  const url = medyaYolu(siteAyarlar["tanitim_video_url"] || "video/tanitim.mp4");
 
   useEffect(() => {
     if (!acik) {
-      setOynuyor(false);
-      setYuzde(0);
-      bittiRef.current = false;
+      setBitti(false);
+      enCokOran.current = 0;
+      sayildi.current = false;
     }
   }, [acik]);
 
-  useEffect(() => {
-    if (!oynuyor) return;
-    const sayac = setInterval(() => {
-      setYuzde((o) => {
-        const yeni = Math.min(100, o + 2);
-        if (yeni === 100 && !bittiRef.current) {
-          bittiRef.current = true;
-          onBitti?.();
-        }
-        return yeni;
-      });
-    }, 80);
-    return () => clearInterval(sayac);
-  }, [oynuyor, onBitti]);
-
   if (!acik) return null;
+
+  const izlenmisSay = () => {
+    if (sayildi.current) return;
+    sayildi.current = true;
+    onBitti?.();
+  };
+
+  const kapat = () => {
+    // videonun büyük kısmı izlendiyse kapatınca da izlenmiş say
+    if (enCokOran.current >= 0.7) izlenmisSay();
+    onKapat();
+  };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-lacivert-koyu/70 p-4 backdrop-blur-sm"
-      onClick={onKapat}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-lacivert-koyu/80 p-4 backdrop-blur-sm"
+      onClick={kapat}
     >
       <div
         className="vak-pop w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
@@ -57,60 +59,55 @@ export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props)
             {altBaslik && <p className="text-xs text-ink/60">{altBaslik}</p>}
           </div>
           <button
-            onClick={onKapat}
+            onClick={kapat}
             className="rounded-full bg-cream-deep px-3 py-1 font-bold text-lacivert transition hover:bg-duck/50"
           >
             ✕
           </button>
         </div>
 
-        <div className="relative aspect-video bg-lacivert-koyu">
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            {yuzde === 100 ? (
-              <>
-                <Ikon ad="tik" boy={56} className="sicra" />
-                <p className="font-display font-bold text-white">İzlendi! Panelindeki istatistiklere eklendi.</p>
-                <button onClick={onKapat} className="btn btn-amber btn-md">
+        <div className="relative bg-black">
+          <video
+            ref={videoRef}
+            src={url}
+            controls
+            playsInline
+            autoPlay
+            className="aspect-video w-full"
+            onTimeUpdate={(e) => {
+              const v = e.currentTarget;
+              if (v.duration > 0) {
+                enCokOran.current = Math.max(enCokOran.current, v.currentTime / v.duration);
+              }
+            }}
+            onEnded={() => {
+              setBitti(true);
+              izlenmisSay();
+            }}
+          />
+          {bitti && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-lacivert-koyu/80">
+              <Ikon ad="tik" boy={56} className="sicra" />
+              <p className="font-display font-bold text-white">İzlendi! Panelindeki istatistiklere eklendi.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setBitti(false);
+                    videoRef.current?.play();
+                  }}
+                  className="btn btn-ghost btn-md !border-white/30 !bg-transparent !text-white hover:!bg-white/10"
+                >
+                  <Ikon ad="tekrar" boy={16} /> Tekrar izle
+                </button>
+                <button onClick={kapat} className="btn btn-amber btn-md">
                   Kapat
                 </button>
-              </>
-            ) : oynuyor ? (
-              <div className="flex flex-col items-center gap-3">
-                <OrdekKafa boy={90} className="animate-bob" />
-                <div className="flex items-end gap-1">
-                  {[14, 26, 18, 32, 22, 28, 16].map((h, i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 rounded-full bg-duck"
-                      style={{ height: h, animation: `bob 0.${6 + i}s ease-in-out infinite` }}
-                    />
-                  ))}
-                </div>
-                <p className="text-xs text-white/60">Demo video oynatılıyor...</p>
               </div>
-            ) : (
-              <button
-                onClick={() => setOynuyor(true)}
-                className="group flex flex-col items-center gap-3"
-                aria-label="Videoyu oynat"
-              >
-                <span className="relative flex h-20 w-20 items-center justify-center rounded-full shadow-xl transition group-hover:scale-110">
-                  <span className="halka" />
-                  <Ikon ad="oynat" boy={80} />
-                </span>
-                <span className="font-display text-sm font-bold text-white/80">
-                  Oynatmak için tıkla
-                </span>
-              </button>
-            )}
-          </div>
+            </div>
+          )}
           <span className="absolute top-3 left-3 chip bg-white/15 text-white backdrop-blur">
-            <Ikon ad="video" boy={14} /> Demo İçerik
+            <Ikon ad="video" boy={14} /> Tanıtım videosu
           </span>
-        </div>
-
-        <div className="h-2 bg-cream-deep">
-          <div className="h-full bg-amber transition-all duration-100" style={{ width: `${yuzde}%` }} />
         </div>
       </div>
     </div>

@@ -14,9 +14,13 @@ export default function Giris() {
   const [sifre, setSifre] = useState("");
   const [hata, setHata] = useState("");
 
-  const gonder = (e: React.FormEvent) => {
+  const [bekliyor, setBekliyor] = useState(false);
+
+  const gonder = async (e: React.FormEvent) => {
     e.preventDefault();
-    const sonuc = girisYap(email.trim().toLowerCase(), sifre);
+    setBekliyor(true);
+    const sonuc = await girisYap(email.trim().toLowerCase(), sifre);
+    setBekliyor(false);
     if (!sonuc.ok) {
       setHata(sonuc.hata ?? "Bir şeyler ters gitti.");
       return;
@@ -51,16 +55,18 @@ export default function Giris() {
             <p className="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600">{hata}</p>
           )}
 
-          <button type="submit" className="btn btn-amber btn-lg w-full">
-            Giriş Yap
+          <button type="submit" disabled={bekliyor} className="btn btn-amber btn-lg w-full">
+            {bekliyor ? "Göle dalınıyor..." : "Giriş Yap"}
           </button>
         </form>
 
         <button
-          onClick={() => {
-            demoGiris();
+          onClick={async () => {
+            setBekliyor(true);
+            await demoGiris();
             router.push("/panel");
           }}
+          disabled={bekliyor}
           className="btn btn-ghost btn-md mt-3 w-full"
         >
           <Ikon ad="vak" boy={18} /> Demo hesabıyla gez

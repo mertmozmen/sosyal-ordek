@@ -1,26 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
-import { haftaDurumu } from "@/lib/data";
-import { useStore, vakPuan, cozulenSorular } from "@/lib/store";
+import { HAFTALAR, haftaDurumu } from "@/lib/data";
+import { useStore, vakPuan, cozulenSorular, type Ilerleme, type Kullanici } from "@/lib/store";
+
+type Ogrenci = { kullanici: Kullanici; ilerleme: Ilerleme };
 
 export default function YonetimOgrenciler() {
   const {
-    ogrencileriGetir,
-    ogrenciIlerlemesi,
+    ogrencileriYukle,
     ogrenciGuncelle,
     ogrenciSil,
-    ogrenciHaftaAc,
-    ogrenciIlerlemeSifirla,
+    ogrenciIlerlemeYaz,
   } = useStore();
+  const [ogrenciler, setOgrenciler] = useState<Ogrenci[]>([]);
+  const [yukleniyor, setYukleniyor] = useState(true);
   const [acik, setAcik] = useState<string | null>(null);
-  const [yenile, setYenile] = useState(0);
   const [hedefHafta, setHedefHafta] = useState(2);
 
-  const ogrenciler = ogrencileriGetir();
-  const tazele = () => setYenile(yenile + 1);
+  const tazele = useCallback(() => {
+    ogrencileriYukle().then((liste) => {
+      setOgrenciler(liste);
+      setYukleniyor(false);
+    });
+  }, [ogrencileriYukle]);
+
+  useEffect(() => {
+    tazele();
+  }, [tazele]);
+
+  const haftaAc = async (o: Ogrenci, haftaNo: number) => {
+    const gorevler = { ...o.ilerleme.gorevler };
+    HAFTALAR.filter((h) => h.no < haftaNo).forEach((h) =>
+      h.gorevler.forEach((g) => (gorevler[g.id] = true))
+    );
+    await ogrenciIlerlemeYaz(o.kullanici.id, { ...o.ilerleme, gorevler });
+    tazele();
+  };
 
   return (
     <div className="space-y-6">
@@ -29,38 +47,45 @@ export default function YonetimOgrenciler() {
           <Ikon ad="kullanici" boy={32} /> Öğrenciler
         </h1>
         <p className="mt-1 text-sm text-ink/60">
-          {ogrenciler.length} kayıtlı öğrenci. Bilgilerini düzenle, haftalarını aç, ilerlemelerini
-          yönet.
+          {ogrenciler.length} kayıtlı öğrenci (Supabase). Bilgilerini düzenle, haftalarını aç,
+          ilerlemelerini yönet.
         </p>
       </div>
 
-      {ogrenciler.length === 0 && (
+      {yukleniyor && (
+        <div className="card flex items-center justify-center gap-3 p-10">
+          <Ikon ad="vak" boy={32} className="animate-bob" />
+          <p className="font-display font-bold text-lacivert/50">Öğrenciler gölden çağırılıyor...</p>
+        </div>
+      )}
+
+      {!yukleniyor && ogrenciler.length === 0 && (
         <div className="card p-10 text-center">
           <p className="baslik text-lg text-lacivert/60">
-            Henüz kayıtlı öğrenci yok. Siteden bir kayıt oluşturunca burada görünecek.
+            Henüz kayıtlı öğrenci yok. Siteden bir kayıt oluşunca burada görünecek.
           </p>
         </div>
       )}
 
       <div className="space-y-3">
         {ogrenciler.map((o) => {
-          const ilerleme = ogrenciIlerlemesi(o.email);
-          const puan = vakPuan(ilerleme);
-          const hafta = haftaDurumu(ilerleme.gorevler);
-          const sorular = cozulenSorular(ilerleme);
-          const acikMi = acik === o.email;
+          const k = o.kullanici;
+          const puan = vakPuan(o.ilerleme);
+          const hafta = haftaDurumu(o.ilerleme.gorevler);
+          const sorular = cozulenSorular(o.ilerleme);
+          const acikMi = acik === k.id;
 
           return (
-            <div key={o.email} className="card overflow-hidden">
+            <div key={k.id} className="card overflow-hidden">
               <button
-                onClick={() => setAcik(acikMi ? null : o.email)}
+                onClick={() => setAcik(acikMi ? null : k.id)}
                 className="flex w-full items-center gap-4 p-4 text-left"
               >
-                <OrdekAvatar renk={o.avatarRenk} boy={44} />
+                <OrdekAvatar renk={k.avatarRenk} boy={44} />
                 <div className="min-w-0 flex-1">
-                  <p className="baslik truncate text-base">{o.ad}</p>
+                  <p className="baslik truncate text-base">{k.ad}</p>
                   <p className="truncate text-xs text-ink/55">
-                    {o.email} · {o.sinif} · Veli: {o.veliTel || "—"}
+                    {k.email} · {k.sinif} · Veli: {k.veliTel || "—"}
                   </p>
                 </div>
                 <div className="hidden gap-2 sm:flex">
@@ -73,40 +98,52 @@ export default function YonetimOgrenciler() {
 
               {acikMi && (
                 <div className="space-y-5 border-t border-lacivert/8 bg-cream/60 p-5">
-                  {/* Bilgi düzenleme */}
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div>
-                      <label className="label" htmlFor={`ad-${o.email}`}>Ad soyad</label>
-                      <input id={`ad-${o.email}`} className="input" defaultValue={o.ad}
-                        onBlur={(e) => { if (e.target.value.trim()) { ogrenciGuncelle(o.email, { ad: e.target.value.trim() }); tazele(); } }} />
+                      <label className="label" htmlFor={`ad-${k.id}`}>Ad soyad</label>
+                      <input id={`ad-${k.id}`} className="input" defaultValue={k.ad}
+                        onBlur={async (e) => {
+                          if (e.target.value.trim()) {
+                            await ogrenciGuncelle(k.id, { ad: e.target.value.trim() });
+                            tazele();
+                          }
+                        }} />
                     </div>
                     <div>
-                      <label className="label" htmlFor={`sinif-${o.email}`}>Sınıf</label>
-                      <select id={`sinif-${o.email}`} className="input" defaultValue={o.sinif}
-                        onChange={(e) => { ogrenciGuncelle(o.email, { sinif: e.target.value }); tazele(); }}>
+                      <label className="label" htmlFor={`sinif-${k.id}`}>Sınıf</label>
+                      <select id={`sinif-${k.id}`} className="input" defaultValue={k.sinif}
+                        onChange={async (e) => {
+                          await ogrenciGuncelle(k.id, { sinif: e.target.value });
+                          tazele();
+                        }}>
                         <option>8. Sınıf</option>
                         <option>7. Sınıf</option>
                       </select>
                     </div>
                     <div>
-                      <label className="label" htmlFor={`tel-${o.email}`}>Veli telefonu</label>
-                      <input id={`tel-${o.email}`} className="input" defaultValue={o.veliTel}
-                        onBlur={(e) => { ogrenciGuncelle(o.email, { veliTel: e.target.value }); tazele(); }} />
+                      <label className="label" htmlFor={`tel-${k.id}`}>Veli telefonu</label>
+                      <input id={`tel-${k.id}`} className="input" defaultValue={k.veliTel}
+                        onBlur={async (e) => {
+                          await ogrenciGuncelle(k.id, { veliTel: e.target.value });
+                          tazele();
+                        }} />
                     </div>
                     <div>
-                      <label className="label" htmlFor={`hedef-${o.email}`}>Haftalık soru hedefi</label>
-                      <input id={`hedef-${o.email}`} type="number" className="input" defaultValue={o.hedefHaftalikSoru}
-                        onBlur={(e) => { ogrenciGuncelle(o.email, { hedefHaftalikSoru: Number(e.target.value) || 150 }); tazele(); }} />
+                      <label className="label" htmlFor={`hedef-${k.id}`}>Haftalık soru hedefi</label>
+                      <input id={`hedef-${k.id}`} type="number" className="input" defaultValue={k.hedefHaftalikSoru}
+                        onBlur={async (e) => {
+                          await ogrenciGuncelle(k.id, { hedefHaftalikSoru: Number(e.target.value) || 150 });
+                          tazele();
+                        }} />
                     </div>
                   </div>
 
-                  {/* İlerleme istatistikleri */}
                   <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
                     {[
                       [`${sorular.toplam}`, "çözülen soru"],
-                      [`${Object.keys(ilerleme.katilim).length}`, "canlı katılım"],
-                      [`${Object.keys(ilerleme.tekrarlar).length}`, "izlenen tekrar"],
-                      [`${Math.floor(ilerleme.siteDakika / 60)}s ${ilerleme.siteDakika % 60}dk`, "gölde süre"],
+                      [`${Object.keys(o.ilerleme.katilim).length}`, "canlı katılım"],
+                      [`${Object.keys(o.ilerleme.tekrarlar).length}`, "izlenen tekrar"],
+                      [`${Math.floor(o.ilerleme.siteDakika / 60)}s ${o.ilerleme.siteDakika % 60}dk`, "gölde süre"],
                     ].map(([deger, etiket]) => (
                       <div key={etiket} className="rounded-2xl bg-white p-3">
                         <p className="baslik text-xl">{deger}</p>
@@ -115,28 +152,26 @@ export default function YonetimOgrenciler() {
                     ))}
                   </div>
 
-                  {/* Hafta yönetimi */}
                   <div className="flex flex-wrap items-end gap-3 rounded-2xl bg-white p-4">
                     <div>
-                      <label className="label" htmlFor={`hafta-${o.email}`}>Hafta kilidi</label>
-                      <select id={`hafta-${o.email}`} className="input w-44" value={hedefHafta}
+                      <label className="label" htmlFor={`hafta-${k.id}`}>Hafta kilidi</label>
+                      <select id={`hafta-${k.id}`} className="input w-44" value={hedefHafta}
                         onChange={(e) => setHedefHafta(Number(e.target.value))}>
                         {Array.from({ length: 28 }, (_, i) => i + 1).map((n) => (
                           <option key={n} value={n}>{n}. haftaya kadar aç</option>
                         ))}
                       </select>
                     </div>
-                    <button
-                      className="btn btn-lacivert btn-md"
-                      onClick={() => { ogrenciHaftaAc(o.email, hedefHafta); tazele(); }}
-                    >
+                    <button className="btn btn-lacivert btn-md" onClick={() => haftaAc(o, hedefHafta)}>
                       <Ikon ad="kilit" boy={15} /> Kilidi Aç
                     </button>
                     <button
                       className="btn btn-ghost btn-md"
-                      onClick={() => {
-                        if (confirm(`${o.ad} öğrencisinin TÜM ilerlemesi sıfırlanacak. Emin misin?`)) {
-                          ogrenciIlerlemeSifirla(o.email);
+                      onClick={async () => {
+                        if (confirm(`${k.ad} öğrencisinin TÜM ilerlemesi sıfırlanacak. Emin misin?`)) {
+                          await ogrenciIlerlemeYaz(k.id, {
+                            gorevler: {}, tekrarlar: {}, hocaVideolari: {}, katilim: {}, siteDakika: 0, forumMesaj: 0,
+                          });
                           tazele();
                         }
                       }}
@@ -145,9 +180,9 @@ export default function YonetimOgrenciler() {
                     </button>
                     <button
                       className="btn btn-md border-2 border-red-200 text-red-500 hover:bg-red-50"
-                      onClick={() => {
-                        if (confirm(`${o.ad} (${o.email}) hesabı ve tüm verisi silinecek. Emin misin?`)) {
-                          ogrenciSil(o.email);
+                      onClick={async () => {
+                        if (confirm(`${k.ad} (${k.email}) hesabı ve ilerlemesi silinecek. Emin misin?`)) {
+                          await ogrenciSil(k.id);
                           setAcik(null);
                           tazele();
                         }

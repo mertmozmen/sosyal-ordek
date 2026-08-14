@@ -1,26 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Sayac } from "@/components/efektler";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
-import { useStore } from "@/lib/store";
+import { useStore, type GorusmeTalebi } from "@/lib/store";
 
 export default function YonetimGenel() {
-  const { ogrencileriGetir, canliDersler, tekrarlar, forum, kanallar } = useStore();
-  const ogrenciler = ogrencileriGetir();
+  const { canliDersler, tekrarlar, forum, kanallar, siteAyarlar, siteAyarKaydet, talepleriGetir, ogrencileriYukle } = useStore();
+  const [ogrenciSayisi, setOgrenciSayisi] = useState(0);
+  const [talepler, setTalepler] = useState<GorusmeTalebi[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoMesaj, setVideoMesaj] = useState("");
   const mesajSayisi = forum.reduce((t, b) => t + b.mesajlar.length, 0);
 
+  useEffect(() => {
+    ogrencileriYukle().then((liste) => setOgrenciSayisi(liste.length));
+    talepleriGetir().then(setTalepler);
+  }, [ogrencileriYukle, talepleriGetir]);
+
+  useEffect(() => {
+    setVideoUrl(siteAyarlar["tanitim_video_url"] ?? "");
+  }, [siteAyarlar]);
+
   const kartlar: { ikon: IkonAd; deger: number; etiket: string; href: string; alt: string }[] = [
-    { ikon: "kullanici", deger: ogrenciler.length, etiket: "kayıtlı öğrenci", href: "/yonetim/ogrenciler", alt: "Düzenle, hafta aç, sil" },
+    { ikon: "kullanici", deger: ogrenciSayisi, etiket: "kayıtlı öğrenci", href: "/yonetim/ogrenciler", alt: "Düzenle, hafta aç, sil" },
     { ikon: "canli", deger: canliDersler.length, etiket: "planlı canlı yayın", href: "/yonetim/dersler", alt: "Ders + soru çözümü oturumu" },
     { ikon: "video", deger: tekrarlar.length, etiket: "yayınlanan kayıt", href: "/yonetim/kayitlar", alt: "Ders ve soru çözüm tekrarları" },
     { ikon: "forum", deger: mesajSayisi, etiket: "forum mesajı", href: "/yonetim/forum", alt: `${kanallar.length} kanal · ${forum.length} başlık` },
-  ];
-
-  const hizli: { ikon: IkonAd; ad: string; href: string; aciklama: string }[] = [
-    { ikon: "ekle", ad: "Canlı yayın aç", href: "/yonetim/dersler", aciklama: "Yeni ders veya soru çözümü oturumu planla" },
-    { ikon: "yukle", ad: "Soru çözümü yükle", href: "/yonetim/kayitlar", aciklama: "Kaydı öğrencilerin tekrar bölümüne düşür" },
-    { ikon: "sil", ad: "Forumu denetle", href: "/yonetim/forum", aciklama: "Kanal, başlık ve mesajları yönet" },
   ];
 
   return (
@@ -30,7 +37,7 @@ export default function YonetimGenel() {
           <Ikon ad="grafik" boy={32} /> Genel Bakış
         </h1>
         <p className="mt-1 text-sm text-ink/60">
-          Gölün kuşbakışı hâli. Her şey buradan yönetilir, kaptan.
+          Gölün kuşbakışı hâli. Veriler Supabase bulutunda; her şey buradan yönetilir, kaptan.
         </p>
       </div>
 
@@ -49,29 +56,72 @@ export default function YonetimGenel() {
         ))}
       </div>
 
-      <div className="card p-6">
-        <h2 className="baslik text-lg">Hızlı işlemler</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          {hizli.map((h) => (
-            <Link
-              key={h.ad}
-              href={h.href}
-              className="group rounded-2xl border-2 border-lacivert/10 p-4 transition hover:border-amber hover:bg-duck/10"
-            >
-              <Ikon ad={h.ikon} boy={26} />
-              <p className="baslik mt-2 text-sm group-hover:text-amber-deep">{h.ad}</p>
-              <p className="mt-0.5 text-xs text-ink/55">{h.aciklama}</p>
-            </Link>
-          ))}
+      <div className="grid gap-5 lg:grid-cols-2">
+        {/* Ön görüşme talepleri */}
+        <div className="card p-6">
+          <h2 className="baslik flex items-center gap-2 text-lg">
+            <Ikon ad="tel" boy={20} /> Ön Görüşme Talepleri ({talepler.length})
+          </h2>
+          <div className="mt-4 space-y-2">
+            {talepler.slice(0, 6).map((t, i) => (
+              <div key={t.id ?? i} className="rounded-2xl bg-cream/70 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-ink">
+                    {t.ogrenciAd} <span className="font-normal text-ink/50">({t.sinif})</span>
+                  </p>
+                  <span className="chip bg-duck/30 text-lacivert">{t.telefon}</span>
+                </div>
+                <p className="mt-1 text-xs text-ink/60">
+                  Veli: {t.veliAd} · Uygun zaman: {t.saat}
+                </p>
+                {t.not && <p className="mt-1 text-xs italic text-ink/50">"{t.not}"</p>}
+              </div>
+            ))}
+            {talepler.length === 0 && (
+              <p className="py-4 text-center text-sm text-ink/45">
+                Henüz talep yok. Site yayında oldukça burada birikecek.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Site ayarları */}
+        <div className="card p-6">
+          <h2 className="baslik flex items-center gap-2 text-lg">
+            <Ikon ad="ayar" boy={20} /> Site Ayarları
+          </h2>
+          <div className="mt-4">
+            <label className="label" htmlFor="videoUrl">Tanıtım videosu</label>
+            <p className="mb-2 text-xs text-ink/55">
+              Girişte açılan ve tüm video alanlarında oynayan video. Tam URL (https://...) ya da
+              repo içi yol (video/tanitim.mp4) girilebilir.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <input id="videoUrl" className="input flex-1" value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)} />
+              <button
+                className="btn btn-lacivert btn-md shrink-0"
+                onClick={async () => {
+                  await siteAyarKaydet("tanitim_video_url", videoUrl.trim());
+                  setVideoMesaj("Kaydedildi! Tüm ziyaretçilere anında yansır.");
+                  setTimeout(() => setVideoMesaj(""), 2500);
+                }}
+              >
+                <Ikon ad="tik" boy={15} /> Kaydet
+              </button>
+            </div>
+            {videoMesaj && (
+              <p className="mt-2 chip vak-pop bg-green-100 text-green-700">{videoMesaj}</p>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="card flex flex-wrap items-center gap-3 border-2 border-amber/40 bg-duck/10 p-4 text-sm">
         <Ikon ad="bildirim" boy={22} />
         <p className="flex-1 text-ink/75">
-          <strong>Demo not:</strong> Yaptığın her değişiklik (ders ekleme, kayıt yükleme, kanal
-          silme...) bu tarayıcıdaki öğrenci hesaplarına anında yansır. Gerçek sürümde bunlar
-          veritabanına yazılır.
+          <strong>Not:</strong> Yaptığın değişiklikler artık Supabase veritabanına yazılıyor ve
+          canlı sitedeki herkese anında yansıyor.
         </p>
       </div>
     </div>
