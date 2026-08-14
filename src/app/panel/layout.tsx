@@ -4,19 +4,20 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { LogoYatay, OrdekAvatar } from "@/components/Logo";
+import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { seviyeBul, useStore, vakPuan } from "@/lib/store";
 import { VAK_SEVIYELER } from "@/lib/data";
 
-const MENU = [
-  { href: "/panel", ad: "Panelim", emoji: "🏠" },
-  { href: "/panel/hocani-tani", ad: "Hocanı Tanı", emoji: "👋" },
-  { href: "/panel/online-derslerim", ad: "Online Derslerim", emoji: "🎥" },
-  { href: "/panel/soru-cozumu", ad: "Soru Çözümü", emoji: "❓" },
-  { href: "/panel/tekrarlarim", ad: "Ders Tekrarlarım", emoji: "🔁" },
-  { href: "/panel/haftalik-plan", ad: "Haftalık Planlarım", emoji: "🗓️" },
-  { href: "/panel/liderlik", ad: "Liderlik Tablosu", emoji: "🏆" },
-  { href: "/panel/forum", ad: "Forum", emoji: "💬" },
-  { href: "/panel/ayarlar", ad: "Ayarlar", emoji: "⚙️" },
+const MENU: { href: string; ad: string; ikon: IkonAd }[] = [
+  { href: "/panel", ad: "Panelim", ikon: "panel" },
+  { href: "/panel/hocani-tani", ad: "Hocanı Tanı", ikon: "hoca" },
+  { href: "/panel/online-derslerim", ad: "Online Derslerim", ikon: "canli" },
+  { href: "/panel/soru-cozumu", ad: "Soru Çözümü", ikon: "soru" },
+  { href: "/panel/tekrarlarim", ad: "Ders Tekrarlarım", ikon: "tekrar" },
+  { href: "/panel/haftalik-plan", ad: "Haftalık Planlarım", ikon: "plan" },
+  { href: "/panel/liderlik", ad: "Liderlik Tablosu", ikon: "kupa" },
+  { href: "/panel/forum", ad: "Forum", ikon: "forum" },
+  { href: "/panel/ayarlar", ad: "Ayarlar", ikon: "ayar" },
 ];
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -30,8 +31,9 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
   if (!yuklendi || !kullanici) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="font-display font-bold text-lacivert/50">Göl hazırlanıyor... 🦆</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3">
+        <Ikon ad="vak" boy={52} className="animate-bob" />
+        <p className="font-display font-bold text-lacivert/50">Göl hazırlanıyor...</p>
       </div>
     );
   }
@@ -63,8 +65,11 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="text-duck">
-                {seviye.emoji} {seviye.ad}
+              <span className="inline-flex items-center gap-1 text-duck">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
+                  <Ikon ad={seviye.ikon} boy={13} />
+                </span>
+                {seviye.ad}
               </span>
               <span className="text-white/70">{puan} vak puanı</span>
             </div>
@@ -92,7 +97,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
                     : "text-lacivert/70 hover:bg-duck/20 hover:text-lacivert"
                 }`}
               >
-                <span>{m.emoji}</span>
+                <Ikon ad={m.ikon} boy={19} />
                 {m.ad}
               </Link>
             );
@@ -104,7 +109,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             }}
             className="flex shrink-0 items-center gap-2.5 rounded-2xl px-3.5 py-2.5 text-left font-display text-sm font-bold whitespace-nowrap text-red-400 transition hover:bg-red-50 hover:text-red-500"
           >
-            <span>🚪</span>
+            <Ikon ad="cikis" boy={19} />
             Çıkış Yap
           </button>
         </nav>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { OrdekKafa } from "./Logo";
+import { Ikon } from "./ikonlar";
 
 type Props = {
   acik: boolean;
@@ -67,7 +68,7 @@ export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props)
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
             {yuzde === 100 ? (
               <>
-                <span className="text-5xl">✅</span>
+                <Ikon ad="tik" boy={56} className="sicra" />
                 <p className="font-display font-bold text-white">İzlendi! Panelindeki istatistiklere eklendi.</p>
                 <button onClick={onKapat} className="btn btn-amber btn-md">
                   Kapat
@@ -93,8 +94,9 @@ export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props)
                 className="group flex flex-col items-center gap-3"
                 aria-label="Videoyu oynat"
               >
-                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-amber text-3xl text-lacivert-koyu shadow-xl transition group-hover:scale-110">
-                  ▶
+                <span className="relative flex h-20 w-20 items-center justify-center rounded-full shadow-xl transition group-hover:scale-110">
+                  <span className="halka" />
+                  <Ikon ad="oynat" boy={80} />
                 </span>
                 <span className="font-display text-sm font-bold text-white/80">
                   Oynatmak için tıkla
@@ -103,7 +105,7 @@ export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props)
             )}
           </div>
           <span className="absolute top-3 left-3 chip bg-white/15 text-white backdrop-blur">
-            🎬 Demo İçerik
+            <Ikon ad="video" boy={14} /> Demo İçerik
           </span>
         </div>
 

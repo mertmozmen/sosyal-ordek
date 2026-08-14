@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Ikon } from "@/components/ikonlar";
 import { YASAL_BELGELER, YASAL_MAP } from "@/lib/legal";
 
 export function generateStaticParams() {
@@ -31,9 +32,9 @@ function Icerik({ metin }: { metin: string }) {
           return (
             <aside
               key={i}
-              className="rounded-2xl border-2 border-amber/40 bg-duck/15 px-4 py-3 text-sm font-semibold text-lacivert"
+              className="flex items-start gap-2 rounded-2xl border-2 border-amber/40 bg-duck/15 px-4 py-3 text-sm font-semibold text-lacivert"
             >
-              ⚠️ <Kalin metin={blok.slice(2)} />
+              <Ikon ad="bildirim" boy={18} className="mt-0.5" /> <span><Kalin metin={blok.slice(2)} /></span>
             </aside>
           );
         }

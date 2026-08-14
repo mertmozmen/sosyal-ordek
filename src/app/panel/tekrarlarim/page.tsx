@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { VideoModal } from "@/components/VideoModal";
-import { DERS_MAP, HOCALAR, TEKRARLAR, type Tekrar } from "@/lib/data";
+import { DERS_MAP, HOCALAR, type Tekrar } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
 export default function Tekrarlarim() {
-  const { ilerleme, tekrarIzle } = useStore();
+  const { ilerleme, tekrarIzle, tekrarlar } = useStore();
   const [sekme, setSekme] = useState<"ders" | "soru">("ders");
   const [acik, setAcik] = useState<Tekrar | null>(null);
 
@@ -15,21 +16,21 @@ export default function Tekrarlarim() {
     if (window.location.search.includes("tab=soru")) setSekme("soru");
   }, []);
 
-  const liste = TEKRARLAR.filter((t) => t.tur === sekme).sort((a, b) => b.hafta - a.hafta);
-  const izlenenSayi = TEKRARLAR.filter((t) => ilerleme.tekrarlar[t.id]).length;
+  const liste = tekrarlar.filter((t) => t.tur === sekme).sort((a, b) => b.hafta - a.hafta);
+  const izlenenSayi = tekrarlar.filter((t) => ilerleme.tekrarlar[t.id]).length;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="baslik text-3xl">🔁 Ders Tekrarlarım</h1>
+          <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="tekrar" boy={32} /> Ders Tekrarlarım</h1>
           <p className="mt-1 text-sm text-ink/60">
             Tüm canlı derslerin ve soru çözümü oturumlarının kayıtları burada — istediğin kadar
             geri sar!
           </p>
         </div>
         <span className="chip bg-duck/40 text-lacivert">
-          {izlenenSayi}/{TEKRARLAR.length} kayıt izledin
+          {izlenenSayi}/{tekrarlar.length} kayıt izledin
         </span>
       </div>
 
@@ -38,13 +39,13 @@ export default function Tekrarlarim() {
           onClick={() => setSekme("ders")}
           className={`btn btn-md ${sekme === "ders" ? "btn-lacivert" : "btn-ghost"}`}
         >
-          🎥 Ders Tekrarları
+          <Ikon ad="canli" boy={16} /> Ders Tekrarları
         </button>
         <button
           onClick={() => setSekme("soru")}
           className={`btn btn-md ${sekme === "soru" ? "btn-lacivert" : "btn-ghost"}`}
         >
-          ❓ Soru Çözüm Tekrarlarım
+          <Ikon ad="soru" boy={16} /> Soru Çözüm Tekrarlarım
         </button>
       </div>
 
@@ -62,12 +63,14 @@ export default function Tekrarlarim() {
                 aria-label={`${t.baslik} kaydını izle`}
               >
                 <span className="absolute inset-0 flex items-center justify-center">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-xl text-lacivert shadow-lg transition group-hover:scale-110">
-                    ▶
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-lg transition group-hover:scale-110">
+                    <Ikon ad="oynat" boy={34} />
                   </span>
                 </span>
                 <span className="absolute right-3 bottom-3 chip bg-black/40 text-white">{t.sure}</span>
-                <span className="absolute top-3 left-3 text-2xl">{ders.emoji}</span>
+                <span className="absolute top-3 left-3 flex h-9 w-9 items-center justify-center rounded-xl bg-white/90">
+                  <Ikon ad={ders.id} boy={22} />
+                </span>
                 {izlendi && (
                   <span className="absolute top-3 right-3 chip bg-white text-lacivert">✓ İzlendi</span>
                 )}

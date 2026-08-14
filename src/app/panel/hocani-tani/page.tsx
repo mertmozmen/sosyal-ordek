@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { VideoModal } from "@/components/VideoModal";
 import { DERS_MAP, HOCALAR, type Hoca } from "@/lib/data";
 import { useStore } from "@/lib/store";
@@ -23,7 +24,7 @@ export default function HocaniTani() {
         <div className="vak-pop card flex flex-col items-center gap-4 border-2 border-amber bg-duck/15 p-6 text-center sm:flex-row sm:text-left">
           <OrdekKafa boy={72} className="shrink-0 animate-bob" />
           <div>
-            <h2 className="baslik text-xl">Aramıza hoş geldin! 🎉</h2>
+            <h2 className="baslik text-xl">Aramıza hoş geldin!</h2>
             <p className="mt-1 text-sm leading-relaxed text-ink/75">
               Ben Vakvak! Göldeki ilk görevin çok keyifli: aşağıdan hocalarının tanışma
               videolarını izle. Sonra "Haftalık Planlarım"dan 1. haftanı açıp yüzmeye
@@ -35,7 +36,7 @@ export default function HocaniTani() {
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="baslik text-3xl">👋 Hocanı Tanı</h1>
+          <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="hoca" boy={32} /> Hocanı Tanı</h1>
           <p className="mt-1 text-sm text-ink/60">
             9 ay boyunca sana eşlik edecek ekip burada. Videolarını izle, derse öyle gel!
           </p>
@@ -61,7 +62,7 @@ export default function HocaniTani() {
                   <OrdekKafa boy={80} className="drop-shadow-lg transition group-hover:scale-110" />
                 </span>
                 <span className="absolute right-3 bottom-3 chip bg-black/40 text-white">
-                  ▶ {h.videoSure}
+                  <Ikon ad="oynat" boy={14} /> {h.videoSure}
                 </span>
                 {izlendi && (
                   <span className="absolute top-3 left-3 chip bg-white text-lacivert">✓ İzledin</span>
@@ -70,8 +71,8 @@ export default function HocaniTani() {
               <div className="p-5">
                 <div className="flex items-center justify-between gap-2">
                   <h2 className="baslik text-lg">{h.ad}</h2>
-                  <span className="chip text-white" style={{ background: ders.renk }}>
-                    {ders.emoji} {ders.kisaAd}
+                  <span className="chip" style={{ background: `${ders.renk}22`, color: ders.renk }}>
+                    <Ikon ad={ders.id} boy={14} /> {ders.kisaAd}
                   </span>
                 </div>
                 <p className="text-xs font-bold text-amber-deep">

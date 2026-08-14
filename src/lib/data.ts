@@ -1,10 +1,11 @@
+import type { IkonAd } from "@/components/ikonlar";
+
 export type DersId = "mat" | "fen" | "tur" | "ink" | "ing" | "genel";
 
 export type Ders = {
   id: DersId;
   ad: string;
   kisaAd: string;
-  emoji: string;
   renk: string;
   aciklama: string;
 };
@@ -14,7 +15,6 @@ export const DERSLER: Ders[] = [
     id: "mat",
     ad: "Matematik",
     kisaAd: "Mat",
-    emoji: "📐",
     renk: "#4E7DE0",
     aciklama: "Sayılardan geometriye, LGS'nin en çok korkulan dersini en sevilen dersine çeviriyoruz.",
   },
@@ -22,7 +22,6 @@ export const DERSLER: Ders[] = [
     id: "fen",
     ad: "Fen Bilimleri",
     kisaAd: "Fen",
-    emoji: "🧪",
     renk: "#3FA47A",
     aciklama: "Deneylerle, görsellerle ve bol soruyla fen konularını gölün berrak suyu kadar netleştiriyoruz.",
   },
@@ -30,7 +29,6 @@ export const DERSLER: Ders[] = [
     id: "tur",
     ad: "Türkçe",
     kisaAd: "Tür",
-    emoji: "📖",
     renk: "#E2574C",
     aciklama: "Paragraf hızından dil bilgisine, Türkçe'de tam puanı hedefleyen bir yol haritası.",
   },
@@ -38,7 +36,6 @@ export const DERSLER: Ders[] = [
     id: "ink",
     ad: "T.C. İnkılap Tarihi",
     kisaAd: "İnk",
-    emoji: "🏛️",
     renk: "#8B5CF6",
     aciklama: "Kronoloji ezberi değil; hikâyesiyle, haritasıyla, sebep-sonucuyla tarih öğreniyoruz.",
   },
@@ -46,7 +43,6 @@ export const DERSLER: Ders[] = [
     id: "ing",
     ad: "Yabancı Dil (İngilizce)",
     kisaAd: "İng",
-    emoji: "🌍",
     renk: "#EC4899",
     aciklama: "Kelime oyunları ve bol pratikle İngilizce sorularını garanti puana dönüştürüyoruz.",
   },
@@ -133,12 +129,12 @@ export const HOCALAR: Hoca[] = [
 
 export type GorevTip = "konu" | "test" | "icerik" | "deneme" | "cikmis";
 
-export const GOREV_TIP: Record<GorevTip, { ad: string; emoji: string }> = {
-  konu: { ad: "Konu Anlatımı", emoji: "🎬" },
-  test: { ad: "Konu Testi", emoji: "✏️" },
-  icerik: { ad: "Ders Notu", emoji: "📄" },
-  deneme: { ad: "Deneme", emoji: "🏁" },
-  cikmis: { ad: "Çıkmış Sorular", emoji: "🗂️" },
+export const GOREV_TIP: Record<GorevTip, { ad: string; ikon: IkonAd }> = {
+  konu: { ad: "Konu Anlatımı", ikon: "video" },
+  test: { ad: "Konu Testi", ikon: "kalem" },
+  icerik: { ad: "Ders Notu", ikon: "kitap" },
+  deneme: { ad: "Deneme", ikon: "deneme" },
+  cikmis: { ad: "Çıkmış Sorular", ikon: "arsiv" },
 };
 
 export type Gorev = {
@@ -449,25 +445,25 @@ export const SIRALAMA: SiralamaOgrenci[] = [
 ];
 
 export const ODULLER = {
-  gun: "Günün Ördeği rozeti + forumda 24 saat özel çerçeve 🖼️",
-  hafta: "Haftanın Ördeği kupası + hocayla birebir 30 dk soru saati 🏆",
-  ay: "Ayın Ördeği madalyası + sürpriz kitap seti 📚",
+  gun: "Günün Ördeği rozeti + forumda 24 saat özel çerçeve",
+  hafta: "Haftanın Ördeği kupası + hocayla birebir 30 dk soru saati",
+  ay: "Ayın Ördeği madalyası + sürpriz kitap seti",
 };
 
 export type ForumKategori = {
   id: string;
   ad: string;
-  emoji: string;
+  ikon: IkonAd;
   aciklama: string;
   renk: string;
 };
 
 export const FORUM_KATEGORILER: ForumKategori[] = [
-  { id: "genel", ad: "Genel Sohbet", emoji: "💬", aciklama: "Göl kenarında serbest muhabbet: gündem, okul, hayat...", renk: "#4E7DE0" },
-  { id: "oyun", ad: "Oyun Sohbeti", emoji: "🎮", aciklama: "Oyunlar, taktikler, turnuvalar. Mola sırasında buradayız!", renk: "#8B5CF6" },
-  { id: "spor", ad: "Spor Sohbeti", emoji: "⚽", aciklama: "Maç yorumları, favori takımlar, spor yapan ördekler.", renk: "#3FA47A" },
-  { id: "ders", ad: "Ders & Soru Yardımlaşma", emoji: "📚", aciklama: "Takıldığın soruyu paylaş, göl halkı yardıma gelsin.", renk: "#E2574C" },
-  { id: "motivasyon", ad: "Motivasyon Köşesi", emoji: "🔥", aciklama: "Hedefler, başarı hikâyeleri, moral bozukluğuna vak diyen yer.", renk: "#F2A83B" },
+  { id: "genel", ad: "Genel Sohbet", ikon: "vak", aciklama: "Göl kenarında serbest muhabbet: gündem, okul, hayat...", renk: "#4E7DE0" },
+  { id: "oyun", ad: "Oyun Sohbeti", ikon: "oyun", aciklama: "Oyunlar, taktikler, turnuvalar. Mola sırasında buradayız!", renk: "#8B5CF6" },
+  { id: "spor", ad: "Spor Sohbeti", ikon: "spor", aciklama: "Maç yorumları, favori takımlar, spor yapan ördekler.", renk: "#3FA47A" },
+  { id: "ders", ad: "Ders & Soru Yardımlaşma", ikon: "kitap", aciklama: "Takıldığın soruyu paylaş, göl halkı yardıma gelsin.", renk: "#E2574C" },
+  { id: "motivasyon", ad: "Motivasyon Köşesi", ikon: "alev", aciklama: "Hedefler, başarı hikâyeleri, moral bozukluğuna vak diyen yer.", renk: "#F2A83B" },
 ];
 
 export type ForumMesaj = {
@@ -497,8 +493,8 @@ export const FORUM_SEED: ForumBaslik[] = [
     avatarRenk: "gol",
     tarih: "Bugün 08:12",
     mesajlar: [
-      { id: "f1m1", yazar: "Defne K.", avatarRenk: "gol", metin: "Ben bugün 60 soru + akşam canlı derse katılacağım. Hadi bakalım, vak vak! 🦆", tarih: "Bugün 08:12" },
-      { id: "f1m2", yazar: "Atlas Y.", avatarRenk: "amber", metin: "80 diyorum ama matematikten sonra güncellerim 😅", tarih: "Bugün 08:30" },
+      { id: "f1m1", yazar: "Defne K.", avatarRenk: "gol", metin: "Ben bugün 60 soru + akşam canlı derse katılacağım. Hadi bakalım, vak vak!", tarih: "Bugün 08:12" },
+      { id: "f1m2", yazar: "Atlas Y.", avatarRenk: "amber", metin: "80 diyorum ama matematikten sonra güncellerim", tarih: "Bugün 08:30" },
       { id: "f1m3", yazar: "Zümra A.", avatarRenk: "cimen", metin: "50 soru + paragraf kampı. Akşam görüşürüz!", tarih: "Bugün 09:05" },
     ],
   },
@@ -523,7 +519,7 @@ export const FORUM_SEED: ForumBaslik[] = [
     avatarRenk: "gol",
     tarih: "2 gün önce",
     mesajlar: [
-      { id: "f3m1", yazar: "Miraç T.", avatarRenk: "gol", metin: "25 dakika ders + 5 dakika oyun kuralımı bozmuyorum. Öneri alayım 🎮", tarih: "2 gün önce" },
+      { id: "f3m1", yazar: "Miraç T.", avatarRenk: "gol", metin: "25 dakika ders + 5 dakika oyun kuralımı bozmuyorum. Öneri alayım", tarih: "2 gün önce" },
       { id: "f3m2", yazar: "Kerem B.", avatarRenk: "gunbatimi", metin: "Satranç! Hem mola hem beyin ısınması. Taş taşı, vak vak.", tarih: "2 gün önce" },
     ],
   },
@@ -535,7 +531,7 @@ export const FORUM_SEED: ForumBaslik[] = [
     avatarRenk: "gunbatimi",
     tarih: "3 gün önce",
     mesajlar: [
-      { id: "f4m1", yazar: "Yiğit D.", avatarRenk: "gunbatimi", metin: "Cumartesi sabah antrenman, öğlen soru maratonu. Yorucu ama değiyor 💪", tarih: "3 gün önce" },
+      { id: "f4m1", yazar: "Yiğit D.", avatarRenk: "gunbatimi", metin: "Cumartesi sabah antrenman, öğlen soru maratonu. Yorucu ama değiyor", tarih: "3 gün önce" },
       { id: "f4m2", yazar: "Ecrin M.", avatarRenk: "cimen", metin: "Voleybol sonrası ders çalışmak daha iyi geliyor bana, kafa dağılıyor.", tarih: "3 gün önce" },
     ],
   },
@@ -548,27 +544,27 @@ export const FORUM_SEED: ForumBaslik[] = [
     tarih: "4 gün önce",
     mesajlar: [
       { id: "f5m1", yazar: "Nehir Ç.", avatarRenk: "gol", metin: "Matematikte 7 net yaptım sadece. Herkes çok iyi gibi, ben mi geriyim?", tarih: "4 gün önce" },
-      { id: "f5m2", yazar: "Zümra A.", avatarRenk: "cimen", metin: "İlk denemem 5 netti, son denemem 14! İlk deneme sadece başlangıç çizgisi, yarışın kendisi değil. 🐣→🦆", tarih: "4 gün önce" },
+      { id: "f5m2", yazar: "Zümra A.", avatarRenk: "cimen", metin: "İlk denemem 5 netti, son denemem 14! İlk deneme sadece başlangıç çizgisi, yarışın kendisi değil. Yavru ördekten koca ördeğe!", tarih: "4 gün önce" },
       { id: "f5m3", yazar: "Atlas Y.", avatarRenk: "amber", metin: "Deneme Analizi oturumuna katıl, Mehmet Hoca yanlışlarını tek tek nasıl kapatacağını gösteriyor.", tarih: "4 gün önce" },
     ],
   },
 ];
 
-export const VAK_SEVIYELER = [
-  { min: 0, ad: "Yavru Ördek", emoji: "🐣" },
-  { min: 200, ad: "Palaz", emoji: "🐤" },
-  { min: 500, ad: "Çalışkan Ördek", emoji: "🦆" },
-  { min: 900, ad: "Bilge Ördek", emoji: "🎓" },
-  { min: 1400, ad: "Gölün Efsanesi", emoji: "👑" },
+export const VAK_SEVIYELER: { min: number; ad: string; ikon: IkonAd }[] = [
+  { min: 0, ad: "Yavru Ördek", ikon: "yumurta" },
+  { min: 200, ad: "Palaz", ikon: "civciv" },
+  { min: 500, ad: "Çalışkan Ördek", ikon: "vak" },
+  { min: 900, ad: "Bilge Ördek", ikon: "hoca" },
+  { min: 1400, ad: "Gölün Efsanesi", ikon: "tac" },
 ];
 
 export const GUNUN_SOZLERI = [
-  "Küçük adımlar, büyük göller aşırır. Bugün bir görev bile kazançtır. 🦆",
+  "Küçük adımlar, büyük göller aşırır. Bugün bir görev bile kazançtır.",
   "Ördekler suyun üstünde sakin görünür ama altta hep çalışır. Sen de öylesin!",
   "Yanlış çözdüğün her soru, sınavda doğru çözeceğin bir sorudur.",
   "Vak vak! Bugün dünden bir soru fazlası bile ilerlemektir.",
   "Göle bakma, yüzmeyi öğren; LGS'ye bakma, konuyu öğren.",
-  "Şampiyon ördekler, kötü günlerinde de gölden çıkmayanlardır. 💪",
+  "Şampiyon ördekler, kötü günlerinde de gölden çıkmayanlardır.",
 ];
 
 export const SSS = [

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 
 const SAATLER = ["Hafta içi 16:00-18:00", "Hafta içi 18:00-20:00", "Cumartesi 10:00-13:00", "Pazar 14:00-17:00"];
 
@@ -42,7 +43,7 @@ export default function OnGorusme() {
           <span className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-cream-deep">
             <OrdekKafa boy={92} className="animate-bob" />
           </span>
-          <h1 className="baslik mt-6 text-3xl">Vak! Talebin bize ulaştı 🎉</h1>
+          <h1 className="baslik mt-6 text-3xl">Vak! Talebin bize ulaştı</h1>
           <p className="mt-4 leading-relaxed text-ink/70">
             <strong>{form.ogrenciAd}</strong> için ön görüşme talebini aldık. Ekibimiz{" "}
             <strong>24 saat içinde</strong> {form.telefon} numarasından sizi arayarak "
@@ -74,11 +75,11 @@ export default function OnGorusme() {
           {[
             "Öğrencimizi tanıyor, hedeflerini ve mevcut durumunu dinliyoruz",
             "9 aylık programın işleyişini ve haftalık plan sistemini anlatıyoruz",
-            "Platformu canlı olarak birlikte geziyoruz (Vakvak da orada oluyor 🦆)",
+            "Platformu canlı olarak birlikte geziyoruz (Vakvak da orada oluyor)",
             "Aklınızdaki tüm soruları yanıtlıyoruz — ödeme bilgisi istemiyoruz",
           ].map((m) => (
-            <li key={m} className="flex gap-2.5">
-              <span className="text-amber">✔</span>
+            <li key={m} className="flex items-start gap-2.5">
+              <Ikon ad="tik" boy={18} className="mt-0.5" />
               {m}
             </li>
           ))}
@@ -153,7 +154,7 @@ export default function OnGorusme() {
           )}
 
           <button type="submit" className="btn btn-amber btn-lg w-full">
-            🗓️ Görüşme Talebi Gönder
+            <Ikon ad="gonder" boy={18} /> Görüşme Talebi Gönder
           </button>
           <p className="text-center text-xs text-ink/50">
             Ya da bizi arayın: <strong>0 (500) 000 00 00</strong>

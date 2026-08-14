@@ -10,12 +10,19 @@ import {
   type ReactNode,
 } from "react";
 import {
+  CANLI_DERSLER,
+  FORUM_KATEGORILER,
   FORUM_SEED,
   GOREV_MAP,
   HAFTALAR,
+  SORU_OTURUMLARI,
+  TEKRARLAR,
   VAK_SEVIYELER,
+  type CanliDers,
   type DersId,
   type ForumBaslik,
+  type ForumKategori,
+  type Tekrar,
 } from "./data";
 
 export type Kullanici = {
@@ -49,6 +56,8 @@ const BOS_ILERLEME: Ilerleme = {
   forumMesaj: 0,
 };
 
+export const YONETICI_SIFRE = "vakvak2026";
+
 function oku<T>(anahtar: string, varsayilan: T): T {
   try {
     const ham = localStorage.getItem(anahtar);
@@ -71,6 +80,10 @@ type Baglam = {
   kullanici: Kullanici | null;
   ilerleme: Ilerleme;
   forum: ForumBaslik[];
+  kanallar: ForumKategori[];
+  canliDersler: CanliDers[];
+  tekrarlar: Tekrar[];
+  yonetici: boolean;
   kayitOl: (
     veri: Pick<Kullanici, "ad" | "email" | "sifre" | "sinif" | "veliTel">
   ) => { ok: boolean; hata?: string };
@@ -85,15 +98,38 @@ type Baglam = {
   yeniMesaj: (baslikId: string, metin: string) => void;
   ayarGuncelle: (kisim: Partial<Kullanici>) => void;
   verileriSifirla: () => void;
+  // yönetim
+  yoneticiGiris: (sifre: string) => boolean;
+  yoneticiCikis: () => void;
+  ogrencileriGetir: () => Kullanici[];
+  ogrenciIlerlemesi: (email: string) => Ilerleme;
+  ogrenciGuncelle: (email: string, kisim: Partial<Kullanici>) => void;
+  ogrenciSil: (email: string) => void;
+  ogrenciHaftaAc: (email: string, haftaNo: number) => void;
+  ogrenciIlerlemeSifirla: (email: string) => void;
+  dersKaydet: (ders: CanliDers) => void;
+  dersSil: (id: string) => void;
+  tekrarKaydet: (tekrar: Tekrar) => void;
+  tekrarSil: (id: string) => void;
+  kanalKaydet: (kanal: ForumKategori) => void;
+  kanalSil: (id: string) => void;
+  baslikSil: (id: string) => void;
+  mesajSil: (baslikId: string, mesajId: string) => void;
 };
 
 const StoreContext = createContext<Baglam | null>(null);
+
+const VARSAYILAN_DERSLER: CanliDers[] = [...CANLI_DERSLER, ...SORU_OTURUMLARI];
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [yuklendi, setYuklendi] = useState(false);
   const [kullanici, setKullanici] = useState<Kullanici | null>(null);
   const [ilerleme, setIlerleme] = useState<Ilerleme>(BOS_ILERLEME);
   const [forum, setForum] = useState<ForumBaslik[]>(FORUM_SEED);
+  const [kanallar, setKanallar] = useState<ForumKategori[]>(FORUM_KATEGORILER);
+  const [canliDersler, setCanliDersler] = useState<CanliDers[]>(VARSAYILAN_DERSLER);
+  const [tekrarlar, setTekrarlar] = useState<Tekrar[]>(TEKRARLAR);
+  const [yonetici, setYonetici] = useState(false);
   const emailRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -108,6 +144,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     }
     setForum(oku("so_forum", FORUM_SEED));
+    setKanallar(oku("so_kanallar", FORUM_KATEGORILER));
+    setCanliDersler(oku("so_dersler", VARSAYILAN_DERSLER));
+    setTekrarlar(oku("so_tekrarlar", TEKRARLAR));
+    setYonetici(oku("so_yonetici", false));
     setYuklendi(true);
   }, []);
 
@@ -120,6 +160,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!yuklendi) return;
     yaz("so_forum", forum);
   }, [forum, yuklendi]);
+
+  useEffect(() => {
+    if (!yuklendi) return;
+    yaz("so_kanallar", kanallar);
+  }, [kanallar, yuklendi]);
+
+  useEffect(() => {
+    if (!yuklendi) return;
+    yaz("so_dersler", canliDersler);
+  }, [canliDersler, yuklendi]);
+
+  useEffect(() => {
+    if (!yuklendi) return;
+    yaz("so_tekrarlar", tekrarlar);
+  }, [tekrarlar, yuklendi]);
 
   useEffect(() => {
     if (!kullanici) return;
@@ -298,6 +353,129 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setKullanici(null);
     setIlerleme(BOS_ILERLEME);
     setForum(FORUM_SEED);
+    setKanallar(FORUM_KATEGORILER);
+    setCanliDersler(VARSAYILAN_DERSLER);
+    setTekrarlar(TEKRARLAR);
+    setYonetici(false);
+  }, []);
+
+  // ---- Yönetim ----
+
+  const yoneticiGiris = useCallback((sifre: string) => {
+    if (sifre !== YONETICI_SIFRE) return false;
+    setYonetici(true);
+    yaz("so_yonetici", true);
+    return true;
+  }, []);
+
+  const yoneticiCikis = useCallback(() => {
+    setYonetici(false);
+    yaz("so_yonetici", false);
+  }, []);
+
+  const ogrencileriGetir = useCallback(() => oku<Kullanici[]>("so_kullanicilar", []), []);
+
+  const ogrenciIlerlemesi = useCallback(
+    (email: string) =>
+      email === emailRef.current ? ilerleme : oku(`so_ilerleme_${email}`, BOS_ILERLEME),
+    [ilerleme]
+  );
+
+  const ogrenciIlerlemeYaz = useCallback((email: string, yeni: Ilerleme) => {
+    yaz(`so_ilerleme_${email}`, yeni);
+    if (email === emailRef.current) setIlerleme(yeni);
+  }, []);
+
+  const ogrenciGuncelle: Baglam["ogrenciGuncelle"] = useCallback((email, kisim) => {
+    const kullanicilar = oku<Kullanici[]>("so_kullanicilar", []);
+    yaz(
+      "so_kullanicilar",
+      kullanicilar.map((k) => (k.email === email ? { ...k, ...kisim } : k))
+    );
+    if (email === emailRef.current) {
+      setKullanici((o) => (o ? { ...o, ...kisim } : o));
+    }
+  }, []);
+
+  const ogrenciSil: Baglam["ogrenciSil"] = useCallback(
+    (email) => {
+      const kullanicilar = oku<Kullanici[]>("so_kullanicilar", []);
+      yaz(
+        "so_kullanicilar",
+        kullanicilar.filter((k) => k.email !== email)
+      );
+      localStorage.removeItem(`so_ilerleme_${email}`);
+      if (email === emailRef.current) cikis();
+    },
+    [cikis]
+  );
+
+  const ogrenciHaftaAc: Baglam["ogrenciHaftaAc"] = useCallback(
+    (email, haftaNo) => {
+      const mevcut =
+        email === emailRef.current ? ilerleme : oku(`so_ilerleme_${email}`, BOS_ILERLEME);
+      const gorevler = { ...mevcut.gorevler };
+      HAFTALAR.filter((h) => h.no < haftaNo).forEach((h) =>
+        h.gorevler.forEach((g) => (gorevler[g.id] = true))
+      );
+      ogrenciIlerlemeYaz(email, { ...mevcut, gorevler });
+    },
+    [ilerleme, ogrenciIlerlemeYaz]
+  );
+
+  const ogrenciIlerlemeSifirla: Baglam["ogrenciIlerlemeSifirla"] = useCallback(
+    (email) => ogrenciIlerlemeYaz(email, BOS_ILERLEME),
+    [ogrenciIlerlemeYaz]
+  );
+
+  const dersKaydet: Baglam["dersKaydet"] = useCallback((ders) => {
+    setCanliDersler((o) => {
+      const varMi = o.some((d) => d.id === ders.id);
+      return varMi ? o.map((d) => (d.id === ders.id ? ders : d)) : [...o, ders];
+    });
+  }, []);
+
+  const dersSil: Baglam["dersSil"] = useCallback((id) => {
+    setCanliDersler((o) => o.filter((d) => d.id !== id));
+  }, []);
+
+  const tekrarKaydet: Baglam["tekrarKaydet"] = useCallback((tekrar) => {
+    setTekrarlar((o) => {
+      const varMi = o.some((t) => t.id === tekrar.id);
+      return varMi ? o.map((t) => (t.id === tekrar.id ? tekrar : t)) : [tekrar, ...o];
+    });
+  }, []);
+
+  const tekrarSil: Baglam["tekrarSil"] = useCallback((id) => {
+    setTekrarlar((o) => o.filter((t) => t.id !== id));
+  }, []);
+
+  const kanalKaydet: Baglam["kanalKaydet"] = useCallback((kanal) => {
+    setKanallar((o) => {
+      const varMi = o.some((k) => k.id === kanal.id);
+      return varMi ? o.map((k) => (k.id === kanal.id ? kanal : k)) : [...o, kanal];
+    });
+  }, []);
+
+  const kanalSil: Baglam["kanalSil"] = useCallback((id) => {
+    setKanallar((o) => o.filter((k) => k.id !== id));
+    setForum((o) => o.filter((b) => b.kategori !== id));
+  }, []);
+
+  const baslikSil: Baglam["baslikSil"] = useCallback((id) => {
+    setForum((o) => o.filter((b) => b.id !== id));
+  }, []);
+
+  const mesajSil: Baglam["mesajSil"] = useCallback((baslikId, mesajId) => {
+    setForum((o) =>
+      o
+        .map((b) =>
+          b.id === baslikId
+            ? { ...b, mesajlar: b.mesajlar.filter((m) => m.id !== mesajId) }
+            : b
+        )
+        .filter((b) => b.mesajlar.length > 0)
+    );
   }, []);
 
   return (
@@ -307,6 +485,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         kullanici,
         ilerleme,
         forum,
+        kanallar,
+        canliDersler,
+        tekrarlar,
+        yonetici,
         kayitOl,
         girisYap,
         demoGiris,
@@ -319,6 +501,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         yeniMesaj,
         ayarGuncelle,
         verileriSifirla,
+        yoneticiGiris,
+        yoneticiCikis,
+        ogrencileriGetir,
+        ogrenciIlerlemesi,
+        ogrenciGuncelle,
+        ogrenciSil,
+        ogrenciHaftaAc,
+        ogrenciIlerlemeSifirla,
+        dersKaydet,
+        dersSil,
+        tekrarKaydet,
+        tekrarSil,
+        kanalKaydet,
+        kanalSil,
+        baslikSil,
+        mesajSil,
       }}
     >
       {children}

@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { CANLI_DERSLER, DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
+import { Ikon } from "@/components/ikonlar";
+import { DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
 export default function OnlineDerslerim() {
-  const { ilerleme, dersKatil } = useStore();
+  const { ilerleme, dersKatil, canliDersler } = useStore();
+  const dersListesi = canliDersler.filter((d) => d.tur === "ders");
   const bugun = (new Date().getDay() + 6) % 7;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="baslik text-3xl">🎥 Online Derslerim</h1>
+        <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="canli" boy={32} /> Online Derslerim</h1>
         <p className="mt-1 text-sm text-ink/60">
           Haftalık canlı ders programın. Dersler en fazla 12 kişilik gruplarla, kameralar açık
           işlenir.
@@ -19,7 +21,7 @@ export default function OnlineDerslerim() {
       </div>
 
       <div className="card flex flex-wrap items-center gap-3 border-2 border-amber/40 bg-duck/10 p-4 text-sm">
-        <span className="text-xl">💡</span>
+        <Ikon ad="bildirim" boy={22} />
         <p className="flex-1 text-ink/75">
           Ders bağlantısı, ders saatinden 10 dakika önce aktifleşir. Katılamadığın dersler otomatik
           olarak{" "}
@@ -31,7 +33,7 @@ export default function OnlineDerslerim() {
       </div>
 
       <div className="grid gap-4">
-        {CANLI_DERSLER.map((cd) => {
+        {dersListesi.map((cd) => {
           const ders = DERS_MAP[cd.ders];
           const hoca = HOCALAR.find((h) => h.id === cd.hocaId)!;
           const katildi = !!ilerleme.katilim[cd.id];
@@ -44,15 +46,15 @@ export default function OnlineDerslerim() {
               }`}
             >
               <span
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-3xl"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
                 style={{ background: `${ders.renk}1f` }}
               >
-                {ders.emoji}
+                <Ikon ad={ders.id} boy={30} />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="baslik text-lg">{cd.baslik}</h2>
-                  {bugunMu && <span className="chip bg-amber text-lacivert-koyu">📍 Bugün</span>}
+                  {bugunMu && <span className="chip bg-amber text-lacivert-koyu"><Ikon ad="konum" boy={13} /> Bugün</span>}
                   {katildi && <span className="chip bg-green-100 text-green-700">✓ Katıldın</span>}
                 </div>
                 <p className="mt-1 text-sm text-ink/60">
@@ -66,7 +68,7 @@ export default function OnlineDerslerim() {
                   </Link>
                 ) : (
                   <button onClick={() => dersKatil(cd.id)} className="btn btn-amber btn-md">
-                    🔴 Derse Katıl
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Derse Katıl
                   </button>
                 )}
               </div>

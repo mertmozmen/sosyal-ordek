@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { AVATAR_RENKLER } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
@@ -26,17 +27,17 @@ export default function Ayarlar() {
     <div className="max-w-3xl space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="baslik text-3xl">⚙️ Ayarlar</h1>
+          <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="ayar" boy={32} /> Ayarlar</h1>
           <p className="mt-1 text-sm text-ink/60">Tüylerini istediğin gibi düzenle, vak!</p>
         </div>
         {kaydedildi && (
-          <span className="chip vak-pop bg-green-100 text-green-700">✓ Kaydedildi</span>
+          <span className="chip vak-pop sicra bg-green-100 text-green-700">✓ Kaydedildi</span>
         )}
       </div>
 
       {/* Profil */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">👤 Profil</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="kullanici" boy={20} /> Profil</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="ad">Ad soyad</label>
@@ -65,7 +66,7 @@ export default function Ayarlar() {
 
       {/* Ördek avatarı */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">🦆 Ördeğinin Rengi</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="vak" boy={20} /> Ördeğinin Rengi</h2>
         <p className="mt-1 text-xs text-ink/55">
           Forumda ve liderlik tablosunda görünecek göl rengini seç.
         </p>
@@ -89,7 +90,7 @@ export default function Ayarlar() {
 
       {/* Hedef */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">🎯 Haftalık Soru Hedefin</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="hedef" boy={20} /> Haftalık Soru Hedefin</h2>
         <p className="mt-1 text-xs text-ink/55">
           Panelindeki hedef çubuğu bu sayıya göre dolar. Gerçekçi başla, sonra artır!
         </p>
@@ -112,7 +113,7 @@ export default function Ayarlar() {
 
       {/* Bildirimler */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">🔔 Bildirimler</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="bildirim" boy={20} /> Bildirimler</h2>
         <div className="mt-4 space-y-3">
           {(
             [
@@ -135,7 +136,7 @@ export default function Ayarlar() {
 
       {/* Şifre */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">🔑 Şifre Değiştir</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="kilit" boy={20} /> Şifre Değiştir</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <input
             type="password"
@@ -153,7 +154,7 @@ export default function Ayarlar() {
               }
               kaydet({ sifre: yeniSifre });
               setYeniSifre("");
-              setSifreMesaj("Şifren güncellendi! 🎉");
+              setSifreMesaj("Şifren güncellendi!");
             }}
           >
             Güncelle
@@ -164,7 +165,7 @@ export default function Ayarlar() {
 
       {/* Gizlilik + tehlikeli bölge */}
       <div className="card p-6">
-        <h2 className="baslik text-lg">📜 Gizlilik & Hesap</h2>
+        <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="kitap" boy={20} /> Gizlilik & Hesap</h2>
         <p className="mt-2 text-sm text-ink/65">
           Verilerinin nasıl işlendiğini{" "}
           <Link href="/sozlesmeler" className="font-bold text-amber-deep hover:underline">
@@ -180,7 +181,7 @@ export default function Ayarlar() {
               router.push("/");
             }}
           >
-            🚪 Çıkış Yap
+            <Ikon ad="cikis" boy={16} /> Çıkış Yap
           </button>
           <button
             className="btn btn-md border-2 border-red-200 text-red-500 hover:bg-red-50"
@@ -191,7 +192,7 @@ export default function Ayarlar() {
               }
             }}
           >
-            🗑️ Demo Verilerini Sıfırla
+            <Ikon ad="sil" boy={16} /> Demo Verilerini Sıfırla
           </button>
         </div>
       </div>

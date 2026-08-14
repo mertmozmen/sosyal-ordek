@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { useStore } from "@/lib/store";
 
 export default function Giris() {
@@ -31,7 +32,7 @@ export default function Giris() {
             <OrdekKafa boy={68} className="animate-bob" />
           </span>
           <h1 className="baslik mt-4 text-2xl">Tekrar hoş geldin!</h1>
-          <p className="mt-1 text-sm text-ink/60">Göl seni özledi, vak vak 🦆</p>
+          <p className="mt-1 text-sm text-ink/60">Göl seni özledi, vak vak!</p>
         </div>
 
         <form onSubmit={gonder} className="mt-6 space-y-4">
@@ -62,7 +63,7 @@ export default function Giris() {
           }}
           className="btn btn-ghost btn-md mt-3 w-full"
         >
-          🦆 Demo hesabıyla gez
+          <Ikon ad="vak" boy={18} /> Demo hesabıyla gez
         </button>
 
         <p className="mt-6 text-center text-sm text-ink/60">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { useStore } from "@/lib/store";
 
 export default function Kayit() {
@@ -56,7 +57,7 @@ export default function Kayit() {
           <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-cream-deep">
             <OrdekKafa boy={68} className="animate-bob" />
           </span>
-          <h1 className="baslik mt-4 text-2xl">Göle katıl! 🐣</h1>
+          <h1 className="baslik mt-4 text-2xl">Göle katıl!</h1>
           <p className="mt-1 text-sm text-ink/60">
             Kayıttan hemen sonra hocalarınla tanışacaksın.
           </p>
@@ -131,7 +132,7 @@ export default function Kayit() {
           )}
 
           <button type="submit" className="btn btn-amber btn-lg w-full">
-            🐣 Kaydımı Oluştur
+            <Ikon ad="yumurta" boy={18} /> Kaydımı Oluştur
           </button>
         </form>
 

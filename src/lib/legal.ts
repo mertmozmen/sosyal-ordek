@@ -141,7 +141,7 @@ Bu kapsamda;
 
 - Forumda hakaret, zorbalık, ayrımcılık, kişisel bilgi paylaşımı ve reklam yasaktır.
 - Moderasyon ekibi kurallara aykırı içerikleri kaldırma ve gerekirse üyeliği askıya alma hakkını saklı tutar.
-- Göl kuralı: Kimse kimsenin tüyünü ıslatmaz; saygı esastır. 🦆
+- Göl kuralı: Kimse kimsenin tüyünü ıslatmaz; saygı esastır.
 
 ## 5. Fikri Mülkiyet
 

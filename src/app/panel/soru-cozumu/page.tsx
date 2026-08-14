@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { DERSLER, DERS_MAP, GUNLER, HOCALAR, SORU_OTURUMLARI } from "@/lib/data";
+import { Ikon } from "@/components/ikonlar";
+import { DERSLER, DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
 export default function SoruCozumu() {
-  const { ilerleme, dersKatil } = useStore();
+  const { ilerleme, dersKatil, canliDersler } = useStore();
+  const oturumlar = canliDersler.filter((d) => d.tur === "soru");
   const [soruDers, setSoruDers] = useState("mat");
   const [soruMetin, setSoruMetin] = useState("");
   const [gonderildi, setGonderildi] = useState(false);
@@ -25,7 +27,7 @@ export default function SoruCozumu() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="baslik text-3xl">❓ Soru Çözümü</h1>
+        <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="soru" boy={32} /> Soru Çözümü</h1>
         <p className="mt-1 text-sm text-ink/60">
           Takıldığın soruyu önceden gönder, canlı oturumda hocan herkes için çözsün. Tüm
           oturumlar kaydedilir ve{" "}
@@ -42,8 +44,8 @@ export default function SoruCozumu() {
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-4">
           <h2 className="baslik text-lg">Bu haftanın canlı oturumları</h2>
-          {SORU_OTURUMLARI.map((o) => {
-            const ders = DERS_MAP[o.ders] ?? { emoji: "🌟", renk: "#F2A83B", kisaAd: "Genel" };
+          {oturumlar.map((o) => {
+            const ders = DERS_MAP[o.ders] ?? { id: "genel", renk: "#F2A83B", kisaAd: "Genel" };
             const hoca = HOCALAR.find((h) => h.id === o.hocaId)!;
             const katildi = !!ilerleme.katilim[o.id];
             const bugunMu = o.gun === bugun;
@@ -55,15 +57,15 @@ export default function SoruCozumu() {
                 }`}
               >
                 <span
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
                   style={{ background: `${ders.renk}1f` }}
                 >
-                  {o.ders === "genel" ? "🌟" : ders.emoji}
+                  <Ikon ad={o.ders === "genel" ? "genel" : o.ders} boy={26} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="baslik text-base">{o.baslik}</h3>
-                    {bugunMu && <span className="chip bg-amber text-lacivert-koyu">📍 Bugün</span>}
+                    {bugunMu && <span className="chip bg-amber text-lacivert-koyu"><Ikon ad="konum" boy={13} /> Bugün</span>}
                     {katildi && <span className="chip bg-green-100 text-green-700">✓ Katıldın</span>}
                   </div>
                   <p className="mt-1 text-sm text-ink/60">
@@ -76,7 +78,7 @@ export default function SoruCozumu() {
                   </Link>
                 ) : (
                   <button onClick={() => dersKatil(o.id)} className="btn btn-amber btn-md shrink-0">
-                    🔴 Oturuma Katıl
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Oturuma Katıl
                   </button>
                 )}
               </div>
@@ -85,7 +87,7 @@ export default function SoruCozumu() {
         </div>
 
         <form onSubmit={soruGonder} className="card h-fit p-6">
-          <h2 className="baslik text-lg">📮 Soru Gönder</h2>
+          <h2 className="baslik flex items-center gap-2 text-lg"><Ikon ad="gonder" boy={20} /> Soru Gönder</h2>
           <p className="mt-1 text-xs text-ink/55">
             Sorunu yaz (gerçek uygulamada fotoğrafını da yükleyebileceksin); sıradaki oturumda
             çözülsün.
@@ -97,7 +99,7 @@ export default function SoruCozumu() {
                 onChange={(e) => setSoruDers(e.target.value)}>
                 {DERSLER.map((d) => (
                   <option key={d.id} value={d.id}>
-                    {d.emoji} {d.ad}
+                    {d.ad}
                   </option>
                 ))}
               </select>
@@ -109,7 +111,7 @@ export default function SoruCozumu() {
                 value={soruMetin} onChange={(e) => setSoruMetin(e.target.value)} />
             </div>
             <button type="submit" className="btn btn-amber btn-md w-full">
-              Gönder, vak! 🦆
+              <Ikon ad="gonder" boy={16} /> Gönder, vak!
             </button>
             {gonderildi && (
               <p className="rounded-xl bg-green-50 px-3 py-2 text-xs font-bold text-green-700">

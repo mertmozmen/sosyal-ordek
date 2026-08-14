@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Ikon } from "@/components/ikonlar";
 import { DERS_MAP, GOREV_TIP, HAFTALAR, haftaDurumu } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
@@ -15,17 +16,17 @@ export default function HaftalikPlan() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="baslik text-3xl">🗓️ Haftalık Planlarım</h1>
+        <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="plan" boy={32} /> Haftalık Planlarım</h1>
         <p className="mt-1 text-sm text-ink/60">
           28 haftalık yolculuğun takvimi. Bir haftanın tüm görevlerini bitirmeden sonraki hafta
-          açılmaz — göl kuralı! 🔒
+          açılmaz — göl kuralı!
         </p>
       </div>
 
       <div className="card p-5">
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-lacivert/80">
-          <span>
-            🏁 {tamamlananHafta} hafta tamamlandı · {acikHafta}. haftadasın
+          <span className="inline-flex items-center gap-1.5">
+            <Ikon ad="deneme" boy={16} /> {tamamlananHafta} hafta tamamlandı · {acikHafta}. haftadasın
           </span>
           <span>%{genelYuzde}</span>
         </div>
@@ -68,7 +69,7 @@ export default function HaftalikPlan() {
                         : "bg-cream-deep text-lacivert/40"
                   }`}
                 >
-                  {durum === "tamam" ? "✓" : durum === "kilitli" ? "🔒" : hafta.no}
+                  {durum === "tamam" ? "✓" : durum === "kilitli" ? <Ikon ad="kilit" boy={20} /> : hafta.no}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -76,7 +77,9 @@ export default function HaftalikPlan() {
                       {hafta.no}. Hafta · {hafta.tema}
                     </h2>
                     {durum === "acik" && (
-                      <span className="chip bg-duck/40 text-lacivert">🦆 Bu haftadasın</span>
+                      <span className="chip bg-duck/40 text-lacivert">
+                        <Ikon ad="vak" boy={14} /> Bu haftadasın
+                      </span>
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-ink/55">
@@ -94,7 +97,7 @@ export default function HaftalikPlan() {
                 <div className="border-t border-lacivert/8 bg-cream/60 p-4">
                   <ul className="space-y-2">
                     {hafta.gorevler.map((g) => {
-                      const ders = DERS_MAP[g.ders] ?? { emoji: "🌟", kisaAd: "Genel", renk: "#F2A83B" };
+                      const ders = DERS_MAP[g.ders] ?? { id: "genel" as const, kisaAd: "Genel", renk: "#F2A83B" };
                       const tamam = !!ilerleme.gorevler[g.id];
                       return (
                         <li key={g.id}>
@@ -105,7 +108,7 @@ export default function HaftalikPlan() {
                               onChange={() => gorevToggle(g.id)}
                               className="h-5 w-5 shrink-0 accent-amber"
                             />
-                            <span className="text-lg">{GOREV_TIP[g.tip].emoji}</span>
+                            <Ikon ad={GOREV_TIP[g.tip].ikon} boy={22} />
                             <span className="min-w-0 flex-1">
                               <span
                                 className={`block text-sm font-semibold ${
@@ -120,10 +123,10 @@ export default function HaftalikPlan() {
                               </span>
                             </span>
                             <span
-                              className="chip shrink-0 text-white"
-                              style={{ background: ders.renk }}
+                              className="chip shrink-0"
+                              style={{ background: `${ders.renk}22`, color: ders.renk }}
                             >
-                              {ders.emoji} {ders.kisaAd}
+                              <Ikon ad={g.ders} boy={13} /> {ders.kisaAd}
                             </span>
                           </label>
                         </li>
@@ -131,8 +134,8 @@ export default function HaftalikPlan() {
                     })}
                   </ul>
                   {tamamSayi === hafta.gorevler.length && hafta.no < 28 && (
-                    <p className="mt-3 rounded-xl bg-green-50 px-3 py-2 text-center text-sm font-bold text-green-700">
-                      🎉 Hafta tamamlandı! Sonraki hafta açıldı, vak vak!
+                    <p className="sicra mt-3 rounded-xl bg-green-50 px-3 py-2 text-center text-sm font-bold text-green-700">
+                      Hafta tamamlandı! Sonraki hafta açıldı, vak vak!
                     </p>
                   )}
                 </div>

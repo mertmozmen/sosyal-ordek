@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { LogoYatay, OrdekAvatar, OrdekAmblem, Wordmark } from "./Logo";
+import { Ikon } from "./ikonlar";
 import { useStore } from "@/lib/store";
 import { YASAL_BELGELER } from "@/lib/legal";
 
@@ -117,7 +118,7 @@ export function Footer() {
           </div>
           <p className="mt-4 text-sm leading-relaxed text-white/70">
             9 aylık yolculukta her öğrencinin yanında yüzen bir göl: canlı dersler, soru
-            çözümleri ve seni tanıyan hocalar. Vak vak! 🦆
+            çözümleri ve seni tanıyan hocalar. Vak vak!
           </p>
         </div>
 
@@ -146,20 +147,33 @@ export function Footer() {
 
         <div>
           <h3 className="font-display text-sm font-bold uppercase tracking-wide text-duck">İletişim</h3>
-          <ul className="mt-3 space-y-2 text-sm text-white/80">
-            <li>📞 0 (500) 000 00 00</li>
-            <li>✉️ info@sosyalordek.com</li>
-            <li>📍 [Adres eklenecek]</li>
-            <li className="pt-2 text-lg">
-              <span className="mr-3">📸</span>
-              <span className="mr-3">▶️</span>
-              <span>🎵</span>
+          <ul className="mt-3 space-y-2.5 text-sm text-white/80">
+            <li className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
+                <Ikon ad="tel" boy={17} />
+              </span>
+              0 (500) 000 00 00
+            </li>
+            <li className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
+                <Ikon ad="mail" boy={17} />
+              </span>
+              info@sosyalordek.com
+            </li>
+            <li className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white">
+                <Ikon ad="konum" boy={17} />
+              </span>
+              [Adres eklenecek]
             </li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs text-white/50">
-        © 2026 Sosyal Ördek Eğitim Hizmetleri · Tüm hakları saklıdır · Gölde herkese yer var 🏞️
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-white/10 py-4 text-center text-xs text-white/50">
+        <span>© 2026 Sosyal Ördek Eğitim Hizmetleri · Tüm hakları saklıdır · Gölde herkese yer var</span>
+        <Link href="/yonetim" className="font-bold text-white/40 underline-offset-2 hover:text-duck hover:underline">
+          Yönetim
+        </Link>
       </div>
     </footer>
   );

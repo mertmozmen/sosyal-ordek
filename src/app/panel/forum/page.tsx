@@ -1,23 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { FORUM_KATEGORILER } from "@/lib/data";
+import { Ikon } from "@/components/ikonlar";
 import { useStore } from "@/lib/store";
 
 export default function Forum() {
-  const { forum } = useStore();
+  const { forum, kanallar } = useStore();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="baslik text-3xl">💬 Forum · Göl Meydanı</h1>
+        <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="forum" boy={32} /> Forum · Göl Meydanı</h1>
         <p className="mt-1 text-sm text-ink/60">
           Ders arası mola, soru yardımlaşması, maç muhabbeti... Göl halkı burada buluşuyor.
         </p>
       </div>
 
       <div className="card flex flex-wrap items-center gap-3 border-2 border-amber/40 bg-duck/10 p-4 text-sm">
-        <span className="text-xl">🪧</span>
+        <Ikon ad="dalga" boy={24} />
         <p className="flex-1 text-ink/75">
           <strong>Göl kuralları:</strong> Kimse kimsenin tüyünü ıslatmaz — saygı esas, zorbalık
           yasak, kişisel bilgi paylaşmak yok. Moderatörler her gölcükte nöbette.
@@ -25,7 +25,7 @@ export default function Forum() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {FORUM_KATEGORILER.map((k) => {
+        {kanallar.map((k) => {
           const basliklar = forum.filter((b) => b.kategori === k.id);
           const sonBaslik = basliklar[0];
           const mesajSayisi = basliklar.reduce((t, b) => t + b.mesajlar.length, 0);
@@ -37,10 +37,10 @@ export default function Forum() {
             >
               <div className="flex items-center gap-3">
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl"
+                  className="flex h-12 w-12 items-center justify-center rounded-2xl"
                   style={{ background: `${k.renk}1f` }}
                 >
-                  {k.emoji}
+                  <Ikon ad={k.ikon} boy={26} />
                 </span>
                 <div>
                   <h2 className="baslik text-lg group-hover:text-amber-deep">{k.ad}</h2>

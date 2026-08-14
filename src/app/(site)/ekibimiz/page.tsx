@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OrdekKafa } from "@/components/Logo";
+import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { DERS_MAP, HOCALAR } from "@/lib/data";
 
 export const metadata = { title: "Ekibimiz — Sosyal Ördek" };
@@ -10,21 +11,21 @@ const DIGER_EKIP = [
     unvan: "Kurucu & Eğitim Koordinatörü",
     metin:
       "Programın 28 haftalık iskeletini kuran, hocaların ders planlarını denetleyen ve her ay veli görüşmelerini yöneten kişi. Gölün kaptanı.",
-    emoji: "🧭",
+    ikon: "hedef" as IkonAd,
   },
   {
     ad: "Deniz Şahin",
     unvan: "Rehber Öğretmen & Motivasyon Koçu",
     metin:
       "Sınav kaygısı, hedef belirleme ve çalışma alışkanlıkları üzerine öğrencilerle birebir görüşür. Forumdaki Motivasyon Köşesi'nin de moderatörü.",
-    emoji: "🧠",
+    ikon: "alev" as IkonAd,
   },
   {
     ad: "Can Aydın",
     unvan: "Teknoloji & Platform Sorumlusu",
     metin:
       "Canlı derslerin kesintisiz akması, kayıtların zamanında yüklenmesi ve Vakvak'ın tüylerinin parlak kalması ondan sorulur.",
-    emoji: "🛠️",
+    ikon: "ayar" as IkonAd,
   },
 ];
 
@@ -59,8 +60,8 @@ export default function Ekibimiz() {
                 >
                   <OrdekKafa boy={76} />
                 </span>
-                <span className="chip text-white" style={{ background: ders.renk }}>
-                  {ders.emoji} {ders.ad}
+                <span className="chip" style={{ background: `${ders.renk}22`, color: ders.renk }}>
+                  <Ikon ad={ders.id} boy={14} /> {ders.ad}
                 </span>
               </div>
               <div className="flex-1">
@@ -85,8 +86,10 @@ export default function Ekibimiz() {
 
       <div className="mt-8 grid gap-5 md:grid-cols-3">
         {DIGER_EKIP.map((k) => (
-          <div key={k.ad} className="card p-6 text-center">
-            <span className="text-4xl">{k.emoji}</span>
+          <div key={k.ad} className="card p-6 text-center transition hover:-translate-y-1">
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-duck/25">
+              <Ikon ad={k.ikon} boy={30} />
+            </span>
             <h3 className="baslik mt-3 text-lg">{k.ad}</h3>
             <p className="text-xs font-bold text-amber-deep">{k.unvan}</p>
             <p className="mt-3 text-sm leading-relaxed text-ink/70">{k.metin}</p>

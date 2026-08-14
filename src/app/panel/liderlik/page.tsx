@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
+import { Ikon } from "@/components/ikonlar";
 import { ODULLER, SIRALAMA } from "@/lib/data";
 import { useStore, vakPuan } from "@/lib/store";
 
@@ -47,7 +48,7 @@ export default function Liderlik() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="baslik text-3xl">🏆 Liderlik Tablosu</h1>
+          <h1 className="baslik flex items-center gap-2.5 text-3xl"><Ikon ad="kupa" boy={32} /> Liderlik Tablosu</h1>
           <p className="mt-1 text-sm text-ink/60">
             Gölün en çalışkan ördekleri! Puanlar; görev, soru, canlı ders ve tekrarlardan toplanır.
           </p>
@@ -67,21 +68,21 @@ export default function Liderlik() {
 
       {/* Şampiyon */}
       <div className="card relative overflow-hidden border-2 border-amber bg-gradient-to-br from-duck/25 to-white p-6">
-        <span className="absolute top-4 right-5 text-5xl">👑</span>
+        <span className="absolute top-4 right-5"><Ikon ad="tac" boy={52} className="animate-bob" /></span>
         <span className="chip bg-amber text-lacivert-koyu">
-          {DONEM_ETIKET[donem].unvan} 🦆
+          <Ikon ad="vak" boy={14} /> {DONEM_ETIKET[donem].unvan}
         </span>
         <div className="mt-4 flex flex-wrap items-center gap-4">
           <OrdekAvatar renk={birinci.avatarRenk} boy={72} className="ring-4 ring-amber" />
           <div>
             <h2 className="baslik text-2xl">{birinci.ad}</h2>
-            <p className="text-sm font-bold text-amber-deep">
-              {birinci.puan} puan · {birinci.seri} günlük seri 🔥 · "{birinci.rozet}"
+            <p className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-amber-deep">
+              {birinci.puan} puan · {birinci.seri} günlük seri <Ikon ad="alev" boy={15} /> · "{birinci.rozet}"
             </p>
           </div>
         </div>
-        <p className="mt-4 rounded-2xl bg-white/80 px-4 py-3 text-sm font-semibold text-lacivert">
-          🎁 Ödül: {ODULLER[donem]}
+        <p className="mt-4 flex items-center gap-2 rounded-2xl bg-white/80 px-4 py-3 text-sm font-semibold text-lacivert">
+          <Ikon ad="rozet" boy={20} /> Ödül: {ODULLER[donem]}
         </p>
       </div>
 
@@ -99,7 +100,9 @@ export default function Liderlik() {
                 {o.puan} puan · "{o.rozet}"
               </p>
             </div>
-            <span className="text-2xl">{i === 0 ? "🥈" : "🥉"}</span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-full font-display text-sm font-extrabold text-white ${i === 0 ? "bg-slate-400" : "bg-amber-deep"}`}>
+              {i + 2}
+            </span>
           </div>
         ))}
       </div>
@@ -133,7 +136,7 @@ export default function Liderlik() {
           Senin sıran: <span className="text-duck">#{benimSira}</span> · {benimPuan} vak puanı
         </p>
         <p className="text-sm text-white/70">
-          Görev tamamla, derse katıl, tekrar izle → puanlar cebine, vak! 🦆
+          Görev tamamla, derse katıl, tekrar izle; puanlar cebine, vak!
         </p>
       </div>
     </div>

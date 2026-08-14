@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OrdekAmblem } from "@/components/Logo";
+import { Ikon, type IkonAd } from "@/components/ikonlar";
 
 export const metadata = { title: "Biz Kimiz? — Sosyal Ördek" };
 
@@ -30,34 +31,36 @@ export default function Hakkimizda() {
           <p>
             Adımız neden ördek? Çünkü ördekler suyun üstünde sakin görünür ama altta durmadan
             çalışır. Tıpkı iyi bir LGS hazırlığı gibi: dışarıdan telaşsız, içeride disiplinli. Bir de
-            ördekler asla tek başına yüzmez — <strong>göl, hepimizin</strong>. 🦆
+            ördekler asla tek başına yüzmez — <strong>göl, hepimizin</strong>.
           </p>
         </div>
       </div>
 
       <div className="mt-10 grid gap-5 md:grid-cols-3">
-        {[
+        {([
           {
-            emoji: "🎯",
+            ikon: "hedef",
             baslik: "Misyonumuz",
             metin:
               "Her öğrencinin kendi ritminde ama asla plansız olmayan bir hazırlık süreci geçirmesini sağlamak; sınav kaygısını sistemle ve samimiyetle yenmek.",
           },
           {
-            emoji: "🔭",
+            ikon: "dalga",
             baslik: "Vizyonumuz",
             metin:
               "Türkiye'nin her şehrindeki öğrencinin, nerede yaşarsa yaşasın, alanında uzman hocalarla küçük gruplar hâlinde çalışabildiği bir eğitim gölü kurmak.",
           },
           {
-            emoji: "💛",
+            ikon: "el",
             baslik: "Değerlerimiz",
             metin:
               "Samimiyet, şeffaflık, düzen ve emek. Veliyle açık iletişim, öğrenciyle güven ilişkisi; forumda bile zorbalığa sıfır tolerans.",
           },
-        ].map((k) => (
-          <div key={k.baslik} className="card p-6">
-            <span className="text-3xl">{k.emoji}</span>
+        ] as { ikon: IkonAd; baslik: string; metin: string }[]).map((k) => (
+          <div key={k.baslik} className="card p-6 transition hover:-translate-y-1">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-duck/25">
+              <Ikon ad={k.ikon} boy={30} />
+            </span>
             <h2 className="baslik mt-3 text-lg">{k.baslik}</h2>
             <p className="mt-2 text-sm leading-relaxed text-ink/70">{k.metin}</p>
           </div>
@@ -65,7 +68,7 @@ export default function Hakkimizda() {
       </div>
 
       <div className="card mt-10 p-8">
-        <h2 className="baslik text-2xl">Rakamlarla göl 📊</h2>
+        <h2 className="baslik flex items-center gap-2 text-2xl"><Ikon ad="grafik" boy={26} /> Rakamlarla göl</h2>
         <div className="mt-6 grid grid-cols-2 gap-6 text-center md:grid-cols-4">
           {[
             ["28", "haftalık program"],
