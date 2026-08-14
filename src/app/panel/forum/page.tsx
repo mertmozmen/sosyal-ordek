@@ -32,7 +32,7 @@ export default function Forum() {
           return (
             <Link
               key={k.id}
-              href={`/panel/forum/${k.id}`}
+              href={`/panel/forum/kanal?k=${k.id}`}
               className="card group p-6 transition hover:-translate-y-0.5"
             >
               <div className="flex items-center gap-3">

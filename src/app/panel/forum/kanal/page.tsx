@@ -1,22 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
 import { useStore } from "@/lib/store";
 
-export default function ForumKategori() {
-  const params = useParams<{ kategori: string }>();
+export default function ForumKanal() {
   const { forum, yeniBaslik, yeniMesaj, kullanici, kanallar } = useStore();
+  const [kategoriId, setKategoriId] = useState<string | null>(null);
+  const [okundu, setOkundu] = useState(false);
   const [acikBaslik, setAcikBaslik] = useState<string | null>(null);
   const [yeniForm, setYeniForm] = useState(false);
   const [baslikMetni, setBaslikMetni] = useState("");
   const [mesajMetni, setMesajMetni] = useState("");
   const [cevaplar, setCevaplar] = useState<Record<string, string>>({});
 
-  const kategori = kanallar.find((k) => k.id === params.kategori);
+  useEffect(() => {
+    setKategoriId(new URLSearchParams(window.location.search).get("k"));
+    setOkundu(true);
+  }, []);
+
+  const kategori = kanallar.find((k) => k.id === kategoriId);
+  if (!okundu) return null;
   if (!kategori) {
     return (
       <div className="card p-10 text-center">
