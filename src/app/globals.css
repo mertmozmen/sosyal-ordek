@@ -1,26 +1,145 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-baloo), var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-logo: var(--font-montserrat), var(--font-baloo), ui-sans-serif, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-lacivert: #1e3a5f;
+  --color-lacivert-koyu: #152c4a;
+  --color-amber: #f2a83b;
+  --color-amber-deep: #dd8f1d;
+  --color-duck: #ffc93c;
+  --color-duck-soft: #ffe9a3;
+  --color-cream: #faf7f0;
+  --color-cream-deep: #f0ead9;
+  --color-ink: #232a35;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-duck);
+  color: var(--color-lacivert-koyu);
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-display font-bold transition-all duration-150 active:scale-95 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-amber {
+    @apply bg-amber text-lacivert-koyu shadow-lg shadow-amber/40 hover:bg-amber-deep;
+  }
+  .btn-lacivert {
+    @apply bg-lacivert text-white hover:bg-lacivert-koyu;
+  }
+  .btn-ghost {
+    @apply border-2 border-lacivert/15 bg-white/70 text-lacivert hover:border-amber hover:bg-duck/20;
+  }
+  .btn-lg {
+    @apply px-7 py-3.5 text-base;
+  }
+  .btn-md {
+    @apply px-5 py-2.5 text-sm;
+  }
+  .btn-sm {
+    @apply px-3.5 py-1.5 text-xs;
+  }
+  .card {
+    @apply rounded-3xl border border-lacivert/8 bg-white shadow-[0_16px_44px_-26px_rgba(30,58,95,0.45)];
+  }
+  .input {
+    @apply w-full rounded-2xl border-2 border-lacivert/10 bg-white px-4 py-2.5 text-sm outline-none transition placeholder:text-ink/35 focus:border-amber;
+  }
+  .label {
+    @apply mb-1.5 block font-display text-sm font-bold text-lacivert;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold;
+  }
+  .baslik {
+    @apply font-display font-extrabold tracking-tight text-lacivert;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes blink {
+  0%,
+  90.5%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+  92.5% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pusku-sallan {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes yuz {
+  0%,
+  100% {
+    transform: translateX(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateX(8px) rotate(1.5deg);
+  }
+}
+
+.animate-bob {
+  animation: bob 3.4s ease-in-out infinite;
+}
+.animate-yuz {
+  animation: yuz 5s ease-in-out infinite;
+}
+.goz {
+  animation: blink 5.2s infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.vak-pop {
+  animation: pop 0.35s ease both;
+}
+.pusku {
+  animation: pusku-sallan 3.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: top center;
 }
