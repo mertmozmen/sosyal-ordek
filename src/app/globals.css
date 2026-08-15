@@ -183,6 +183,95 @@ body {
   }
 }
 
+/* Vakvak sahne şovu */
+@keyframes vakvak-yakinlas {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(2.5) rotate(-5deg);
+  }
+  45% {
+    transform: scale(2.35) rotate(4deg);
+  }
+  60% {
+    transform: scale(2.45) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+.vakvak-yakinlas {
+  animation: vakvak-yakinlas 1.6s cubic-bezier(0.34, 1.3, 0.5, 1) both;
+  transform-origin: 50% 80%;
+}
+
+@keyframes vakvak-kucul {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  60% {
+    transform: scale(0.16) rotate(-30deg);
+  }
+  100% {
+    transform: scale(0.22) rotate(-18deg);
+  }
+}
+.vakvak-kucul {
+  animation: vakvak-kucul 0.3s ease-in both;
+}
+.vakvak-mini {
+  transform: scale(0.22) rotate(-14deg);
+}
+
+@keyframes vakvak-varis {
+  0% {
+    transform: scale(0.22) rotate(-14deg);
+  }
+  45% {
+    transform: scale(1.35) rotate(6deg);
+  }
+  65% {
+    transform: scale(0.86) rotate(-4deg);
+  }
+  82% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+.vakvak-varis {
+  animation: vakvak-varis 0.55s cubic-bezier(0.3, 1.2, 0.4, 1) both;
+}
+
+@keyframes vakvak-ucus {
+  0% {
+    transform: translateX(108vw) rotate(-10deg);
+  }
+  100% {
+    transform: translateX(-18vw) rotate(-10deg);
+  }
+}
+.vakvak-ucus {
+  animation: vakvak-ucus 1s cubic-bezier(0.5, 0, 0.5, 1) both;
+}
+
+@keyframes hiz-cizgisi {
+  0% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(0.15) translateX(46px);
+  }
+}
+.hiz-cizgisi {
+  animation: hiz-cizgisi 0.5s ease-out infinite;
+  transform-origin: right center;
+}
+
 @keyframes konfeti-dus {
   0% {
     transform: translateY(-6vh) rotate(0deg);
