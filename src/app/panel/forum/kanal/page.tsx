@@ -97,7 +97,7 @@ export default function ForumKanal() {
                 onClick={() => setAcikBaslik(acik ? null : b.id)}
                 className="flex w-full items-center gap-4 p-4 text-left"
               >
-                <OrdekAvatar renk={b.avatarRenk} boy={42} />
+                <OrdekAvatar renk={b.avatarRenk} boy={42} asama={b.asama} />
                 <div className="min-w-0 flex-1">
                   <h2 className="baslik truncate text-base">{b.baslik}</h2>
                   <p className="text-xs text-ink/55">
@@ -114,7 +114,7 @@ export default function ForumKanal() {
                       const benim = kullanici && m.yazar === kullanici.ad;
                       return (
                         <li key={m.id} className={`flex gap-3 ${benim ? "flex-row-reverse" : ""}`}>
-                          <OrdekAvatar renk={m.avatarRenk} boy={34} className="mt-1 shrink-0" />
+                          <OrdekAvatar renk={m.avatarRenk} boy={34} asama={m.asama} className="mt-1 shrink-0" />
                           <div
                             className={`max-w-[85%] rounded-2xl px-4 py-2.5 shadow-sm ${
                               benim ? "rounded-tr-md bg-duck/40" : "rounded-tl-md bg-white"

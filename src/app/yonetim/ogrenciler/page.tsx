@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
-import { HAFTALAR, haftaDurumu } from "@/lib/data";
+import { HAFTALAR, haftaDurumu, asamaBul, tamamlananHaftaSayisi } from "@/lib/data";
 import { useStore, vakPuan, cozulenSorular, type Ilerleme, type Kullanici } from "@/lib/store";
 
 type Ogrenci = { kullanici: Kullanici; ilerleme: Ilerleme };
@@ -72,6 +72,7 @@ export default function YonetimOgrenciler() {
           const k = o.kullanici;
           const puan = vakPuan(o.ilerleme);
           const hafta = haftaDurumu(o.ilerleme.gorevler);
+          const asama = asamaBul(tamamlananHaftaSayisi(o.ilerleme.gorevler));
           const sorular = cozulenSorular(o.ilerleme);
           const acikMi = acik === k.id;
 
@@ -81,7 +82,7 @@ export default function YonetimOgrenciler() {
                 onClick={() => setAcik(acikMi ? null : k.id)}
                 className="flex w-full items-center gap-4 p-4 text-left"
               >
-                <OrdekAvatar renk={k.avatarRenk} boy={44} />
+                <OrdekAvatar renk={k.avatarRenk} boy={44} asama={asama.no} />
                 <div className="min-w-0 flex-1">
                   <p className="baslik truncate text-base">{k.ad}</p>
                   <p className="truncate text-xs text-ink/55">
@@ -89,6 +90,7 @@ export default function YonetimOgrenciler() {
                   </p>
                 </div>
                 <div className="hidden gap-2 sm:flex">
+                  <span className="chip bg-amber/25 text-amber-deep">{asama.ad}</span>
                   <span className="chip bg-duck/30 text-lacivert">{puan} puan</span>
                   <span className="chip bg-cream-deep text-lacivert">{hafta}. hafta</span>
                   <span className="chip bg-cream-deep text-lacivert">{sorular.toplam} soru</span>
@@ -170,7 +172,7 @@ export default function YonetimOgrenciler() {
                       onClick={async () => {
                         if (confirm(`${k.ad} öğrencisinin TÜM ilerlemesi sıfırlanacak. Emin misin?`)) {
                           await ogrenciIlerlemeYaz(k.id, {
-                            gorevler: {}, tekrarlar: {}, hocaVideolari: {}, katilim: {}, siteDakika: 0, forumMesaj: 0,
+                            gorevler: {}, tekrarlar: {}, hocaVideolari: {}, katilim: {}, siteDakika: 0, forumMesaj: 0, gorulenEvrimler: {},
                           });
                           tazele();
                         }

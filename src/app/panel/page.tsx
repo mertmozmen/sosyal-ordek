@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { OrdekKafa } from "@/components/Logo";
 import { Sayac } from "@/components/efektler";
+import { EvrimSeridi } from "@/components/Evrim";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { cozulenSorular, useStore, vakPuan } from "@/lib/store";
 import {
@@ -88,6 +89,9 @@ export default function Panelim() {
           <Ikon ad="plan" boy={17} /> Bu haftanın planına git
         </Link>
       </div>
+
+      {/* Yumurtadan Ördeğe yolculuğu */}
+      <EvrimSeridi />
 
       {/* İstatistik kartları */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

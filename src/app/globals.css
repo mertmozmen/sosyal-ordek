@@ -183,6 +183,17 @@ body {
   }
 }
 
+@keyframes konfeti-dus {
+  0% {
+    transform: translateY(-6vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(560deg);
+    opacity: 0.7;
+  }
+}
+
 @keyframes damla {
   0% {
     transform: translateY(0) scale(1);

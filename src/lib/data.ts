@@ -424,6 +424,7 @@ export const TEKRARLAR: Tekrar[] = tekrarUret();
 export type SiralamaOgrenci = {
   ad: string;
   avatarRenk: string;
+  asama: number;
   puanGun: number;
   puanHafta: number;
   puanAy: number;
@@ -432,16 +433,16 @@ export type SiralamaOgrenci = {
 };
 
 export const SIRALAMA: SiralamaOgrenci[] = [
-  { ad: "Defne K.", avatarRenk: "gol", puanGun: 86, puanHafta: 540, puanAy: 2140, seri: 12, rozet: "Soru Canavarı" },
-  { ad: "Atlas Y.", avatarRenk: "amber", puanGun: 92, puanHafta: 495, puanAy: 2310, seri: 9, rozet: "Erken Kuş" },
-  { ad: "Zümra A.", avatarRenk: "cimen", puanGun: 71, puanHafta: 512, puanAy: 1980, seri: 15, rozet: "Seri Yüzücü" },
-  { ad: "Kerem B.", avatarRenk: "gunbatimi", puanGun: 64, puanHafta: 470, puanAy: 2050, seri: 7, rozet: "Deneme Kurdu" },
-  { ad: "Elif S.", avatarRenk: "amber", puanGun: 58, puanHafta: 445, puanAy: 1720, seri: 11, rozet: "Paragraf Uzmanı" },
-  { ad: "Miraç T.", avatarRenk: "gol", puanGun: 77, puanHafta: 430, puanAy: 1890, seri: 5, rozet: "Gece Kuşu" },
-  { ad: "Ecrin M.", avatarRenk: "cimen", puanGun: 49, puanHafta: 410, puanAy: 1650, seri: 8, rozet: "Fen Aşığı" },
-  { ad: "Yiğit D.", avatarRenk: "gunbatimi", puanGun: 55, puanHafta: 385, puanAy: 1540, seri: 4, rozet: "Tarih Bilgesi" },
-  { ad: "Nehir Ç.", avatarRenk: "gol", puanGun: 42, puanHafta: 350, puanAy: 1480, seri: 6, rozet: "Kelime Avcısı" },
-  { ad: "Emir H.", avatarRenk: "amber", puanGun: 38, puanHafta: 320, puanAy: 1390, seri: 3, rozet: "Yeni Palaz" },
+  { ad: "Defne K.", asama: 3, avatarRenk: "gol", puanGun: 86, puanHafta: 540, puanAy: 2140, seri: 12, rozet: "Soru Canavarı" },
+  { ad: "Atlas Y.", asama: 2, avatarRenk: "amber", puanGun: 92, puanHafta: 495, puanAy: 2310, seri: 9, rozet: "Erken Kuş" },
+  { ad: "Zümra A.", asama: 4, avatarRenk: "cimen", puanGun: 71, puanHafta: 512, puanAy: 1980, seri: 15, rozet: "Seri Yüzücü" },
+  { ad: "Kerem B.", asama: 3, avatarRenk: "gunbatimi", puanGun: 64, puanHafta: 470, puanAy: 2050, seri: 7, rozet: "Deneme Kurdu" },
+  { ad: "Elif S.", asama: 2, avatarRenk: "amber", puanGun: 58, puanHafta: 445, puanAy: 1720, seri: 11, rozet: "Paragraf Uzmanı" },
+  { ad: "Miraç T.", asama: 3, avatarRenk: "gol", puanGun: 77, puanHafta: 430, puanAy: 1890, seri: 5, rozet: "Gece Kuşu" },
+  { ad: "Ecrin M.", asama: 2, avatarRenk: "cimen", puanGun: 49, puanHafta: 410, puanAy: 1650, seri: 8, rozet: "Fen Aşığı" },
+  { ad: "Yiğit D.", asama: 2, avatarRenk: "gunbatimi", puanGun: 55, puanHafta: 385, puanAy: 1540, seri: 4, rozet: "Tarih Bilgesi" },
+  { ad: "Nehir Ç.", asama: 1, avatarRenk: "gol", puanGun: 42, puanHafta: 350, puanAy: 1480, seri: 6, rozet: "Kelime Avcısı" },
+  { ad: "Emir H.", asama: 1, avatarRenk: "amber", puanGun: 38, puanHafta: 320, puanAy: 1390, seri: 3, rozet: "Yeni Palaz" },
 ];
 
 export const ODULLER = {
@@ -470,6 +471,7 @@ export type ForumMesaj = {
   id: string;
   yazar: string;
   avatarRenk: string;
+  asama?: number;
   metin: string;
   tarih: string;
 };
@@ -480,6 +482,7 @@ export type ForumBaslik = {
   baslik: string;
   yazar: string;
   avatarRenk: string;
+  asama?: number;
   tarih: string;
   mesajlar: ForumMesaj[];
 };
@@ -601,3 +604,38 @@ export const AVATAR_RENKLER: Record<string, { ad: string; hex: string }> = {
   cimen: { ad: "Çimen Yeşili", hex: "#6FBF73" },
   gunbatimi: { ad: "Gün Batımı", hex: "#EF8354" },
 };
+
+export type EvrimAsamasi = {
+  no: number;
+  ad: string;
+  minHafta: number;
+  aciklama: string;
+  kutlama: string;
+};
+
+// Yumurtadan Ördeğe: aşamalar tamamlanan hafta sayısına kilitli
+export const EVRIM_ASAMALARI: EvrimAsamasi[] = [
+  { no: 0, ad: "Yumurta", minHafta: 0, aciklama: "Göle yeni bir yumurta bırakıldı. Görevler yumurtayı ısıtıyor!", kutlama: "Göle hoş geldin! Yumurtan sıcacık bir yuvada; ilk haftanı bitirince çatlamaya başlayacak. Vak!" },
+  { no: 1, ad: "Çatlayan Yumurta", minHafta: 1, aciklama: "İlk hafta bitti, kabukta ilk çatlak! İçeriden vak sesleri geliyor.", kutlama: "ÇAT! İlk haftanı bitirdin ve kabuğun çatladı! Böyle giderse yakında gölü göreceksin. Vak vak!" },
+  { no: 2, ad: "Civciv", minHafta: 3, aciklama: "Yumurtadan çıktın! Gölün en yeni ve en sevimli üyesisin.", kutlama: "VAAAK! YUMURTADAN ÇIKTIN! 3 haftayı devirdin ve artık resmen gölün bir üyesisin. Tüylerin kurusun, yüzmeye devam!" },
+  { no: 3, ad: "Palaz", minHafta: 8, aciklama: "Tüylerin çıktı, kanatların güçleniyor. Tempo sende!", kutlama: "8 hafta! Artık civciv değil koca bir palazsın; tüylerin parlıyor. Gölün yarısı seni konuşuyor, vak!" },
+  { no: 4, ad: "Genç Ördek", minHafta: 14, aciklama: "Yolun yarısı geçildi; yüzmeyi çoktan söktün.", kutlama: "YOLUN YARISI BİTTİ! 14 haftadır kulaç atıyorsun ve artık genç bir ördeksin. LGS gölü ufukta göründü!" },
+  { no: 5, ad: "Usta Ördek", minHafta: 22, aciklama: "Son viraj! Gözlüğünü taktın, işi ciddiye aldın.", kutlama: "22 hafta... Sen artık bu işin ustasısın, gözlük sana çok yakıştı! Son viraja tüm gücünle gir, vak vak!" },
+  { no: 6, ad: "Mezun Ördek", minHafta: 28, aciklama: "28 hafta tamam: kep senin! Logodaki ördek artık sensin.", kutlama: "VAAAAK! 28 HAFTANIN TAMAMINI BİTİRDİN! Kep artık senin başında; logodaki ördek bugün sensin. LGS'de göl seninle!" },
+];
+
+export function tamamlananHaftaSayisi(gorevler: Record<string, boolean>): number {
+  return HAFTALAR.filter((h) => h.gorevler.every((g) => gorevler[g.id])).length;
+}
+
+export function asamaBul(tamamlananHafta: number): EvrimAsamasi {
+  let sonuc = EVRIM_ASAMALARI[0];
+  for (const a of EVRIM_ASAMALARI) {
+    if (tamamlananHafta >= a.minHafta) sonuc = a;
+  }
+  return sonuc;
+}
+
+export function sonrakiAsama(tamamlananHafta: number): EvrimAsamasi | null {
+  return EVRIM_ASAMALARI.find((a) => a.minHafta > tamamlananHafta) ?? null;
+}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { OrdekAvatar } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
-import { ODULLER, SIRALAMA } from "@/lib/data";
+import { ODULLER, SIRALAMA, asamaBul, tamamlananHaftaSayisi } from "@/lib/data";
 import { useStore, vakPuan } from "@/lib/store";
 
 type Donem = "gun" | "hafta" | "ay";
@@ -21,11 +21,13 @@ export default function Liderlik() {
 
   const alan = donem === "gun" ? "puanGun" : donem === "hafta" ? "puanHafta" : "puanAy";
   const benimPuan = vakPuan(ilerleme);
+  const benimAsama = asamaBul(tamamlananHaftaSayisi(ilerleme.gorevler));
 
   const liste = [
     ...SIRALAMA.map((o) => ({
       ad: o.ad,
       avatarRenk: o.avatarRenk,
+      asama: o.asama,
       puan: o[alan] as number,
       seri: o.seri,
       rozet: o.rozet,
@@ -34,9 +36,10 @@ export default function Liderlik() {
     {
       ad: `${kullanici.ad} (sen)`,
       avatarRenk: kullanici.avatarRenk,
+      asama: benimAsama.no,
       puan: benimPuan,
       seri: 1,
-      rozet: "Gölün Yenisi",
+      rozet: benimAsama.ad,
       ben: true,
     },
   ].sort((a, b) => b.puan - a.puan);
@@ -73,7 +76,7 @@ export default function Liderlik() {
           <Ikon ad="vak" boy={14} /> {DONEM_ETIKET[donem].unvan}
         </span>
         <div className="mt-4 flex flex-wrap items-center gap-4">
-          <OrdekAvatar renk={birinci.avatarRenk} boy={72} className="ring-4 ring-amber" />
+          <OrdekAvatar renk={birinci.avatarRenk} boy={72} asama={birinci.asama} className="ring-4 ring-amber" />
           <div>
             <h2 className="baslik text-2xl">{birinci.ad}</h2>
             <p className="flex flex-wrap items-center gap-1.5 text-sm font-bold text-amber-deep">
@@ -93,7 +96,7 @@ export default function Liderlik() {
             <span className="font-display text-3xl font-extrabold text-lacivert/30">
               {i + 2}.
             </span>
-            <OrdekAvatar renk={o.avatarRenk} boy={52} />
+            <OrdekAvatar renk={o.avatarRenk} boy={52} asama={o.asama} />
             <div className="min-w-0 flex-1">
               <p className="baslik truncate text-base">{o.ad}</p>
               <p className="text-xs text-ink/55">
@@ -117,7 +120,7 @@ export default function Liderlik() {
             <span className="w-7 shrink-0 text-center font-display font-extrabold text-lacivert/40">
               {i + 4}
             </span>
-            <OrdekAvatar renk={o.avatarRenk} boy={38} />
+            <OrdekAvatar renk={o.avatarRenk} boy={38} asama={o.asama} />
             <div className="min-w-0 flex-1">
               <p className={`truncate text-sm font-bold ${o.ben ? "text-amber-deep" : "text-ink"}`}>
                 {o.ad}

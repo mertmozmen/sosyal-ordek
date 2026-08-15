@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { LogoYatay, OrdekAvatar } from "@/components/Logo";
+import { EvrimKutlama } from "@/components/Evrim";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
-import { seviyeBul, useStore, vakPuan } from "@/lib/store";
-import { VAK_SEVIYELER } from "@/lib/data";
+import { useStore, vakPuan } from "@/lib/store";
+import { asamaBul, sonrakiAsama, tamamlananHaftaSayisi } from "@/lib/data";
 
 const MENU: { href: string; ad: string; ikon: IkonAd }[] = [
   { href: "/panel", ad: "Panelim", ikon: "panel" },
@@ -39,10 +40,11 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   }
 
   const puan = vakPuan(ilerleme);
-  const seviye = seviyeBul(puan);
-  const sonrakiSeviye = VAK_SEVIYELER.find((s) => s.min > puan);
-  const seviyeYuzde = sonrakiSeviye
-    ? Math.round(((puan - seviye.min) / (sonrakiSeviye.min - seviye.min)) * 100)
+  const tamamHafta = tamamlananHaftaSayisi(ilerleme.gorevler);
+  const asama = asamaBul(tamamHafta);
+  const sonraki = sonrakiAsama(tamamHafta);
+  const asamaYuzde = sonraki
+    ? Math.round(((tamamHafta - asama.minHafta) / (sonraki.minHafta - asama.minHafta)) * 100)
     : 100;
 
   return (
@@ -57,28 +59,23 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
 
         <div className="mx-4 rounded-2xl bg-lacivert p-4 text-white">
           <div className="flex items-center gap-3">
-            <OrdekAvatar renk={kullanici.avatarRenk} boy={44} />
+            <OrdekAvatar renk={kullanici.avatarRenk} boy={46} asama={asama.no} />
             <div className="min-w-0">
               <p className="truncate font-display font-bold">{kullanici.ad}</p>
-              <p className="text-xs text-white/60">{kullanici.sinif}</p>
+              <p className="text-xs text-white/60">{kullanici.sinif} · {puan} vak puanı</p>
             </div>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="inline-flex items-center gap-1 text-duck">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white">
-                  <Ikon ad={seviye.ikon} boy={13} />
-                </span>
-                {seviye.ad}
-              </span>
-              <span className="text-white/70">{puan} vak puanı</span>
+              <span className="text-duck">{asama.ad}</span>
+              <span className="text-white/70">{tamamHafta}/28 hafta</span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full rounded-full bg-duck" style={{ width: `${seviyeYuzde}%` }} />
+              <div className="h-full rounded-full bg-duck transition-all duration-700" style={{ width: `${asamaYuzde}%` }} />
             </div>
-            {sonrakiSeviye && (
+            {sonraki && (
               <p className="mt-1 text-[10px] text-white/50">
-                {sonrakiSeviye.ad} için {sonrakiSeviye.min - puan} puan kaldı
+                {sonraki.ad} olmak için {sonraki.minHafta - tamamHafta} hafta kaldı
               </p>
             )}
           </div>
@@ -116,6 +113,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
       </aside>
 
       <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <EvrimKutlama />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LogoYatay, OrdekAvatar, OrdekAmblem, Wordmark } from "./Logo";
 import { Ikon } from "./ikonlar";
 import { useStore } from "@/lib/store";
+import { asamaBul, tamamlananHaftaSayisi } from "@/lib/data";
 import { YASAL_BELGELER } from "@/lib/legal";
 
 const LINKLER = [
@@ -15,8 +16,9 @@ const LINKLER = [
 ];
 
 export function Navbar() {
-  const { kullanici, yuklendi } = useStore();
+  const { kullanici, yuklendi, ilerleme } = useStore();
   const [acik, setAcik] = useState(false);
+  const asamaNo = asamaBul(tamamlananHaftaSayisi(ilerleme.gorevler)).no;
 
   return (
     <header className="sticky top-0 z-40 border-b border-lacivert/8 bg-cream/85 backdrop-blur-md">
@@ -40,7 +42,7 @@ export function Navbar() {
         <div className="hidden items-center gap-2 md:flex">
           {yuklendi && kullanici ? (
             <Link href="/panel" className="btn btn-amber btn-md">
-              <OrdekAvatar renk={kullanici.avatarRenk} boy={26} />
+              <OrdekAvatar renk={kullanici.avatarRenk} boy={26} asama={asamaNo} />
               Panelim
             </Link>
           ) : (

@@ -19,6 +19,8 @@ import {
   SORU_OTURUMLARI,
   TEKRARLAR,
   VAK_SEVIYELER,
+  asamaBul,
+  tamamlananHaftaSayisi,
   type CanliDers,
   type DersId,
   type ForumBaslik,
@@ -47,6 +49,7 @@ export type Ilerleme = {
   katilim: Record<string, boolean>;
   siteDakika: number;
   forumMesaj: number;
+  gorulenEvrimler: Record<string, boolean>;
 };
 
 export type GorusmeTalebi = {
@@ -67,6 +70,7 @@ const BOS_ILERLEME: Ilerleme = {
   katilim: {},
   siteDakika: 0,
   forumMesaj: 0,
+  gorulenEvrimler: {},
 };
 
 export const YONETICI_SIFRE = "vakvak2026";
@@ -101,6 +105,7 @@ function ilerlemeFromRow(r: Satir | null): Ilerleme {
     katilim: r.katilim ?? {},
     siteDakika: r.site_dakika ?? 0,
     forumMesaj: r.forum_mesaj ?? 0,
+    gorulenEvrimler: r.gorulen_evrimler ?? {},
   };
 }
 
@@ -113,6 +118,7 @@ function ilerlemeToRow(userId: string, i: Ilerleme): Satir {
     katilim: i.katilim,
     site_dakika: i.siteDakika,
     forum_mesaj: i.forumMesaj,
+    gorulen_evrimler: i.gorulenEvrimler,
     updated_at: new Date().toISOString(),
   };
 }
@@ -185,6 +191,7 @@ function demoIlerlemeUret(): Ilerleme {
     katilim: { "cd-mat": true, "cd-fen": true, "sc-mat": true },
     siteDakika: 412,
     forumMesaj: 3,
+    gorulenEvrimler: {},
   };
 }
 
@@ -220,6 +227,7 @@ type Baglam = {
   ayarGuncelle: (kisim: Partial<Kullanici>) => void;
   sifreDegistir: (yeniSifre: string) => Promise<{ ok: boolean; hata?: string }>;
   gorusmeTalebiGonder: (veri: GorusmeTalebi) => Promise<{ ok: boolean }>;
+  evrimGoruldu: (asamaNo: number) => void;
   verileriSifirla: () => void;
   // yönetim
   yoneticiGiris: (sifre: string) => Promise<boolean>;
@@ -269,6 +277,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         baslik: b.baslik,
         yazar: b.yazar_ad,
         avatarRenk: b.avatar_renk,
+        asama: b.asama ?? 2,
         tarih: b.tarih,
         mesajlar: (mesajlar.data ?? [])
           .filter((m: Satir) => m.baslik_id === b.id)
@@ -276,6 +285,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             id: m.id,
             yazar: m.yazar_ad,
             avatarRenk: m.avatar_renk,
+            asama: m.asama ?? 2,
             metin: m.metin,
             tarih: m.tarih,
           })),
@@ -532,6 +542,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const id = `u${Date.now()}`;
       const yazar = kullanici?.ad ?? "Misafir Ördek";
       const renk = kullanici?.avatarRenk ?? "amber";
+      const asama = asamaBul(tamamlananHaftaSayisi(ilerleme.gorevler)).no;
       const mesajId = `${id}-m1`;
       setForum((o) => [
         {
@@ -540,8 +551,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           baslik,
           yazar,
           avatarRenk: renk,
+          asama,
           tarih: "Az önce",
-          mesajlar: [{ id: mesajId, yazar, avatarRenk: renk, metin, tarih: "Az önce" }],
+          mesajlar: [{ id: mesajId, yazar, avatarRenk: renk, asama, metin, tarih: "Az önce" }],
         },
         ...o,
       ]);
@@ -550,30 +562,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const uid = oturumId.current;
         supabase
           .from("forum_basliklar")
-          .insert({ id, kanal_id: kategori, baslik, yazar_id: uid, yazar_ad: yazar, avatar_renk: renk, tarih: "Az önce" })
+          .insert({ id, kanal_id: kategori, baslik, yazar_id: uid, yazar_ad: yazar, avatar_renk: renk, asama, tarih: "Az önce" })
           .then(() =>
             supabase
               .from("forum_mesajlar")
-              .insert({ id: mesajId, baslik_id: id, yazar_id: uid, yazar_ad: yazar, avatar_renk: renk, metin, tarih: "Az önce" })
+              .insert({ id: mesajId, baslik_id: id, yazar_id: uid, yazar_ad: yazar, avatar_renk: renk, asama, metin, tarih: "Az önce" })
               .then(undefined, () => {})
           , () => {});
       }
       return id;
     },
-    [kullanici]
+    [kullanici, ilerleme.gorevler]
   );
 
   const yeniMesaj: Baglam["yeniMesaj"] = useCallback(
     (baslikId, metin) => {
       const yazar = kullanici?.ad ?? "Misafir Ördek";
       const renk = kullanici?.avatarRenk ?? "amber";
+      const asama = asamaBul(tamamlananHaftaSayisi(ilerleme.gorevler)).no;
       const mesajId = `${baslikId}-m${Date.now()}`;
       setForum((o) =>
         o.map((b) =>
           b.id === baslikId
             ? {
                 ...b,
-                mesajlar: [...b.mesajlar, { id: mesajId, yazar, avatarRenk: renk, metin, tarih: "Az önce" }],
+                mesajlar: [...b.mesajlar, { id: mesajId, yazar, avatarRenk: renk, asama, metin, tarih: "Az önce" }],
               }
             : b
         )
@@ -582,11 +595,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (oturumId.current) {
         supabase
           .from("forum_mesajlar")
-          .insert({ id: mesajId, baslik_id: baslikId, yazar_id: oturumId.current, yazar_ad: yazar, avatar_renk: renk, metin, tarih: "Az önce" })
+          .insert({ id: mesajId, baslik_id: baslikId, yazar_id: oturumId.current, yazar_ad: yazar, avatar_renk: renk, asama, metin, tarih: "Az önce" })
           .then(undefined, () => {});
       }
     },
-    [kullanici]
+    [kullanici, ilerleme.gorevler]
   );
 
   const ayarGuncelle: Baglam["ayarGuncelle"] = useCallback((kisim) => {
@@ -628,6 +641,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       yaz("so_yerel_talepler", [...talepler, { ...veri, tarih: new Date().toISOString() }]);
       return { ok: true };
     }
+  }, []);
+
+  const evrimGoruldu: Baglam["evrimGoruldu"] = useCallback((asamaNo) => {
+    setIlerleme((o) => ({
+      ...o,
+      gorulenEvrimler: { ...o.gorulenEvrimler, [String(asamaNo)]: true },
+    }));
   }, []);
 
   const verileriSifirla = useCallback(() => {
@@ -822,6 +842,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ayarGuncelle,
         sifreDegistir,
         gorusmeTalebiGonder,
+        evrimGoruldu,
         verileriSifirla,
         yoneticiGiris,
         yoneticiCikis,

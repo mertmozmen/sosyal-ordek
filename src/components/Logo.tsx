@@ -1,4 +1,5 @@
 import { AVATAR_RENKLER } from "@/lib/data";
+import { EvrimFigur } from "./EvrimFigur";
 
 type AmblemProps = {
   boy?: number;
@@ -150,10 +151,13 @@ export function OrdekKafa({ boy = 64, className = "" }: { boy?: number; classNam
 export function OrdekAvatar({
   renk = "amber",
   boy = 44,
+  asama,
   className = "",
 }: {
   renk?: string;
   boy?: number;
+  /** Yumurtadan Ördeğe aşaması (0-6); verilirse avatar o aşamanın figürünü gösterir */
+  asama?: number;
   className?: string;
 }) {
   const hex = AVATAR_RENKLER[renk]?.hex ?? AVATAR_RENKLER.amber.hex;
@@ -162,10 +166,15 @@ export function OrdekAvatar({
       className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
       style={{ width: boy, height: boy, background: hex }}
     >
-      <OrdekKafa boy={boy * 0.82} className="translate-y-[8%]" />
+      {asama === undefined ? (
+        <OrdekKafa boy={boy * 0.82} className="translate-y-[8%]" />
+      ) : (
+        <EvrimFigur asama={asama} boy={boy * 0.78} />
+      )}
     </span>
   );
 }
+
 
 export function Wordmark({ boyut = "text-xl" }: { boyut?: string }) {
   return (
