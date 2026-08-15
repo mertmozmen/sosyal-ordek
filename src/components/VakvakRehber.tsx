@@ -115,7 +115,7 @@ export function VakvakRehber() {
     const ilkSahne = poz === null;
 
     // "bazen" ekranı boydan boya geçsin (adıma bağlı sözde-rastgele, ~%40)
-    const ucusVar = !ilkSahne && !dar && (adim * 37 + 11) % 5 < 2;
+    const ucusVar = !ilkSahne && !dar && (adim * 37 + 11) % 10 < 7;
 
     const hedefeYerles = () => {
       const el = durak.hedef ? document.getElementById(durak.hedef) : null;
@@ -160,8 +160,8 @@ export function VakvakRehber() {
             // konuşurken ara ara ekrana yaklaş
             const yakinlastir = () => {
               setYakinlas(true);
-              sonra(1650, () => setYakinlas(false));
-              sonra(5200 + ((adim * 700) % 2000), yakinlastir);
+              sonra(1750, () => setYakinlas(false));
+              sonra(3600 + ((adim * 700) % 1800), yakinlastir);
             };
             sonra(2800, yakinlastir);
           });
@@ -209,11 +209,15 @@ export function VakvakRehber() {
         <div className="pointer-events-none fixed left-0 z-[60]" style={{ top: `${ucusY}%` }}>
           <div className="vakvak-ucus relative">
             {/* hız çizgileri */}
-            <span className="hiz-cizgisi absolute top-3 -right-2 h-1.5 w-24 rounded-full bg-amber/70" />
-            <span className="hiz-cizgisi absolute top-9 -right-8 h-1 w-32 rounded-full bg-duck/80" style={{ animationDelay: "0.12s" }} />
-            <span className="hiz-cizgisi absolute top-14 -right-4 h-1.5 w-20 rounded-full bg-lacivert/20" style={{ animationDelay: "0.24s" }} />
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber bg-white shadow-xl">
-              <OrdekKafa boy={44} />
+            <span className="hiz-cizgisi absolute top-2 -right-2 h-2 w-28 rounded-full bg-amber/70" />
+            <span className="hiz-cizgisi absolute top-8 -right-10 h-1.5 w-40 rounded-full bg-duck/80" style={{ animationDelay: "0.1s" }} />
+            <span className="hiz-cizgisi absolute top-14 -right-4 h-1.5 w-24 rounded-full bg-lacivert/25" style={{ animationDelay: "0.2s" }} />
+            <span className="hiz-cizgisi absolute top-19 -right-12 h-1 w-32 rounded-full bg-amber/50" style={{ animationDelay: "0.3s" }} />
+            <span className="vak-pop absolute -top-9 left-2 rotate-[-8deg] rounded-2xl rounded-bl-sm bg-amber px-2.5 py-1 font-display text-xs font-extrabold text-lacivert-koyu shadow-lg">
+              VAAAK!
+            </span>
+            <div className="vakvak-takla flex h-20 w-20 items-center justify-center rounded-full border-2 border-amber bg-white shadow-xl">
+              <OrdekKafa boy={54} />
             </div>
             <span className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
               {[0, 1, 2].map((i) => (
@@ -245,7 +249,7 @@ export function VakvakRehber() {
                 faz === "kucul"
                   ? "vakvak-kucul"
                   : faz === "dash"
-                    ? "vakvak-mini"
+                    ? "vakvak-dash-don"
                     : faz === "varis"
                       ? "vakvak-varis"
                       : yakinlas
@@ -254,10 +258,32 @@ export function VakvakRehber() {
               }`}
             >
               <OrdekKafa boy={56} />
+              {yakinlas && faz === "konusma" && (
+                <span className="vak-pop absolute -top-7 -right-4 rotate-6 rounded-2xl rounded-bl-sm bg-amber px-2 py-0.5 font-display text-[10px] font-extrabold text-lacivert-koyu shadow-lg">
+                  Vak vak!
+                </span>
+              )}
               {faz === "dash" && (
                 <>
                   <span className="hiz-cizgisi absolute top-4 -right-14 h-2 w-16 rounded-full bg-amber/70" />
                   <span className="hiz-cizgisi absolute top-10 -right-20 h-1.5 w-24 rounded-full bg-duck/80" style={{ animationDelay: "0.1s" }} />
+                </>
+              )}
+              {faz === "varis" && (
+                <>
+                  <span className="pointer-events-none absolute inset-0 rounded-full border-[3px] border-amber/70" style={{ animation: "halka-patla 0.55s ease-out both" }} />
+                  <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-duck/70" style={{ animation: "halka-patla 0.7s ease-out 0.1s both" }} />
+                  {[0, 60, 120, 180, 240, 300].map((aci) => (
+                    <span
+                      key={aci}
+                      className="pointer-events-none absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                      style={{
+                        background: aci % 120 === 0 ? "#F5A623" : "#FFC93C",
+                        ["--aci" as string]: `${aci}deg`,
+                        animation: "parcacik 0.6s ease-out both",
+                      }}
+                    />
+                  ))}
                 </>
               )}
               {hareketHalinde && (
@@ -344,7 +370,7 @@ export function VakvakRehber() {
                 setAdim(0);
                 setAcik(true);
               }}
-              className="group relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber bg-white shadow-[0_14px_30px_-12px_rgba(242,168,59,0.8)] transition hover:scale-110 active:scale-95"
+              className={`group relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-amber bg-white shadow-[0_14px_30px_-12px_rgba(242,168,59,0.8)] transition hover:scale-110 active:scale-95 ${vakDe ? "sicra" : ""}`}
               aria-label="Vakvak ile turu başlat"
             >
               <span className="halka" />
