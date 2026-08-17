@@ -6,6 +6,17 @@ import { EvrimFigur } from "./EvrimFigur";
 
 type Faz = "dalis" | "cekil" | null;
 
+// GitHub Pages alt dizininde linkler basePath ile gelir; router.push ise
+// basePath'siz yol bekler (kendisi ekler). Çift eklemeyi (404) önlemek için soy.
+const KOK = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+function rotayaCevir(href: string): string {
+  if (KOK && (href === KOK || href.startsWith(`${KOK}/`))) {
+    return href.slice(KOK.length) || "/";
+  }
+  return href;
+}
+
 /**
  * Sayfalar arası göl geçişi: ördek tramplenden "pıt" diye göle atlar,
  * su ekranı kaplar, yeni sayfa sudan çekilerek açılır.
@@ -21,11 +32,11 @@ export function SayfaGecisi() {
     zamanlar.current.push(setTimeout(fn, ms));
   };
 
-  // Yeni sayfa geldiğinde suyu çek
+  // Yeni sayfa geldiğinde suyu çek (usePathname basePath içermez)
   useEffect(() => {
     if (faz === "dalis" && hedefRef.current) {
-      const hedefYol = hedefRef.current.split("#")[0].split("?")[0].replace(/\/$/, "");
-      if (yol.replace(/\/$/, "") === hedefYol) {
+      const hedefYol = rotayaCevir(hedefRef.current).split("#")[0].split("?")[0].replace(/\/$/, "");
+      if (yol.replace(/\/$/, "") === (hedefYol || "/").replace(/\/$/, "")) {
         hedefRef.current = null;
         setFaz("cekil");
         sonra(650, () => setFaz(null));
@@ -52,7 +63,7 @@ export function SayfaGecisi() {
       e.stopPropagation();
       hedefRef.current = href;
       setFaz("dalis");
-      sonra(980, () => router.push(href));
+      sonra(980, () => router.push(rotayaCevir(href)));
       // emniyet: rota değişmezse suyu geri çek
       sonra(3000, () => {
         if (hedefRef.current) {
