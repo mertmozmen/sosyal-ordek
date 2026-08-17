@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { EvrimFigur } from "./EvrimFigur";
 
 type Faz = "dalis" | "cekil" | null;
 
@@ -18,14 +17,15 @@ function rotayaCevir(href: string): string {
 }
 
 /**
- * Sayfalar arası göl geçişi: ördek tramplenden "pıt" diye göle atlar,
- * su ekranı kaplar, yeni sayfa sudan çekilerek açılır.
+ * Sayfalar arası göl geçişi: lacivert göl ekranı kaplar, öğretmen ördek
+ * yavru öğrencileriyle soldan sağa süzülür, yeni sayfa sudan çekilerek açılır.
  */
 export function SayfaGecisi() {
   const router = useRouter();
   const yol = usePathname();
   const [faz, setFaz] = useState<Faz>(null);
   const hedefRef = useRef<string | null>(null);
+  const baslangicRef = useRef(0);
   const zamanlar = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const sonra = (ms: number, fn: () => void) => {
@@ -38,8 +38,12 @@ export function SayfaGecisi() {
       const hedefYol = rotayaCevir(hedefRef.current).split("#")[0].split("?")[0].replace(/\/$/, "");
       if (yol.replace(/\/$/, "") === (hedefYol || "/").replace(/\/$/, "")) {
         hedefRef.current = null;
-        setFaz("cekil");
-        sonra(650, () => setFaz(null));
+        // konvoy geçidini yarıda kesmemek için en az 1.6 sn suda kal
+        const gecen = Date.now() - baslangicRef.current;
+        sonra(Math.max(0, 1600 - gecen), () => {
+          setFaz("cekil");
+          sonra(600, () => setFaz(null));
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,8 +66,9 @@ export function SayfaGecisi() {
       e.preventDefault();
       e.stopPropagation();
       hedefRef.current = href;
+      baslangicRef.current = Date.now();
       setFaz("dalis");
-      sonra(980, () => router.push(rotayaCevir(href)));
+      sonra(800, () => router.push(rotayaCevir(href)));
       // emniyet: rota değişmezse suyu geri çek
       sonra(3000, () => {
         if (hedefRef.current) {
@@ -85,80 +90,50 @@ export function SayfaGecisi() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[80] overflow-hidden">
-      {faz === "dalis" && (
-        <>
-          {/* Tramplen (kran) */}
-          <div className="gecis-tahta absolute top-0 right-[6vw] hidden sm:block">
-            {/* direk */}
-            <div
-              className="absolute top-0 right-2 h-[13vh] w-3 rounded-b-lg bg-lacivert"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(to bottom, transparent 0 14px, rgba(255,255,255,0.35) 14px 17px)",
-              }}
-            />
-            {/* tahta */}
-            <div className="absolute top-[13vh] right-0 h-3 w-[15vw] origin-right rounded-full bg-amber shadow-lg" />
-            <div className="absolute top-[13vh] right-0 mt-3 h-6 w-4 rounded-b-md bg-amber-deep" />
-            {/* atlayan ördek */}
-            <div className="gecis-ordek absolute top-[6.5vh] right-[13vw]">
-              <EvrimFigur asama={4} boy={64} />
-            </div>
-          </div>
-
-          {/* PIT! + sıçrama */}
-          <div className="absolute top-[64vh] right-[22vw] hidden sm:block">
-            <span
-              className="absolute -top-10 left-1/2 -translate-x-1/2 rounded-2xl bg-white px-3 py-1 font-display text-lg font-extrabold text-lacivert shadow-xl"
-              style={{ animation: "pit-pop 0.35s cubic-bezier(.3,1.4,.5,1) 0.8s both" }}
-            >
-              PIT!
-            </span>
-            {[0, 45, 90, 135, 180, 225, 270, 315].map((aci) => (
-              <span
-                key={aci}
-                className="absolute top-0 left-1/2 h-3 w-3 rounded-full bg-white/90"
-                style={{
-                  ["--aci" as string]: `${aci}deg`,
-                  animation: "parcacik 0.55s ease-out 0.8s both",
-                }}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* Göl suyu */}
+      {/* Lacivert göl */}
       <div
-        className={`absolute inset-x-0 bottom-0 h-[102vh] ${
+        className={`absolute inset-x-0 bottom-0 h-[102vh] bg-lacivert ${
           faz === "dalis" ? "gecis-su-dol" : "gecis-su-cekil"
         }`}
       >
-        {/* köpüklü dalga tepesi */}
+        {/* dalga tepesi */}
         <div
           className="dalga-suzul absolute -top-8 left-0 h-9 w-[200%]"
           style={{
             backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 36'%3E%3Cpath d='M0 20 Q20 0 40 20 T80 20 V36 H0 Z' fill='%233B9EC4'/%3E%3C/svg%3E\")",
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 36'%3E%3Cpath d='M0 20 Q20 0 40 20 T80 20 V36 H0 Z' fill='%231E3A5F'/%3E%3C/svg%3E\")",
             backgroundSize: "80px 36px",
             backgroundRepeat: "repeat-x",
             backgroundPosition: "bottom",
           }}
         />
-        <div className="h-full w-full bg-gradient-to-b from-[#3B9EC4] via-[#2C7FA8] to-lacivert">
-          {/* su içi kabarcıklar */}
-          {[8, 22, 38, 55, 71, 86].map((sol, i) => (
-            <span
-              key={sol}
-              className="absolute h-3 w-3 rounded-full border-2 border-white/30"
-              style={{
-                left: `${sol}%`,
-                top: `${18 + ((i * 17) % 40)}%`,
-                animation: `bob ${2 + (i % 3) * 0.6}s ease-in-out infinite`,
-              }}
+
+        {/* Öğretmen ördek ve öğrencileri soldan sağa geçer */}
+        {faz === "dalis" && (
+          <div className="gecis-konvoy absolute top-[36%] left-0 flex items-end">
+            {[0, 1, 2].map((i) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={i}
+                src={`${KOK}/gorseller/yavru-ordek.svg`}
+                alt=""
+                className="w-16 sm:w-24"
+                style={{
+                  marginBottom: [2, 10, 4][i],
+                  marginRight: -8,
+                  animation: `bob ${1.7 + i * 0.35}s ease-in-out infinite`,
+                }}
+              />
+            ))}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${KOK}/gorseller/ogretmen-ordek.svg`}
+              alt=""
+              className="w-36 sm:w-56"
+              style={{ animation: "bob 2.4s ease-in-out infinite" }}
             />
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

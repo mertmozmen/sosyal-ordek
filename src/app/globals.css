@@ -452,21 +452,27 @@ body {
 
 /* Sayfa geçişi: ördek tramplene çıkar, göle atlar, su ekranı kaplar */
 @keyframes gecis-su-dol {
-  0% {
+  from {
     transform: translateY(101%);
   }
-  26% {
-    transform: translateY(76%);
-  }
-  66% {
-    transform: translateY(76%);
-  }
-  100% {
+  to {
     transform: translateY(0%);
   }
 }
 .gecis-su-dol {
-  animation: gecis-su-dol 1s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  animation: gecis-su-dol 0.38s cubic-bezier(0.4, 0, 0.3, 1) forwards;
+}
+
+@keyframes gecis-konvoy {
+  from {
+    transform: translateX(-55vw);
+  }
+  to {
+    transform: translateX(112vw);
+  }
+}
+.gecis-konvoy {
+  animation: gecis-konvoy 1.5s cubic-bezier(0.35, 0, 0.65, 1) 0.25s both;
 }
 
 @keyframes gecis-su-cekil {
@@ -481,63 +487,7 @@ body {
   animation: gecis-su-cekil 0.6s cubic-bezier(0.55, 0, 0.85, 1) forwards;
 }
 
-@keyframes gecis-tahta {
-  0% {
-    transform: translateY(-140%);
-  }
-  14% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-.gecis-tahta {
-  animation: gecis-tahta 1s ease-out forwards;
-}
 
-@keyframes gecis-ordek {
-  0% {
-    transform: translate(4vw, 0) rotate(0deg);
-    opacity: 0;
-  }
-  12% {
-    transform: translate(0, 0) rotate(0deg);
-    opacity: 1;
-  }
-  38% {
-    transform: translate(-9vw, 0) rotate(-4deg);
-  }
-  50% {
-    transform: translate(-12vw, -10vh) rotate(-30deg);
-  }
-  80% {
-    transform: translate(-16vw, 56vh) rotate(-175deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-17vw, 68vh) rotate(-185deg);
-    opacity: 0;
-  }
-}
-.gecis-ordek {
-  animation: gecis-ordek 1s cubic-bezier(0.5, 0, 0.75, 1) forwards;
-}
-
-@keyframes pit-pop {
-  0% {
-    transform: scale(0) rotate(-10deg);
-    opacity: 0;
-  }
-  55% {
-    transform: scale(1.4) rotate(6deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
 
 .halka {
   position: absolute;
