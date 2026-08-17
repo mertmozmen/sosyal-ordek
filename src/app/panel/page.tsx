@@ -4,6 +4,7 @@ import Link from "next/link";
 import { OrdekKafa } from "@/components/Logo";
 import { Sayac } from "@/components/efektler";
 import { EvrimSeridi } from "@/components/Evrim";
+import { AlanGrafigi, DersBarlari, HaftaHaritasi, HalkaGrafik } from "@/components/grafikler";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { cozulenSorular, useStore, vakPuan } from "@/lib/store";
 import {
@@ -50,8 +51,6 @@ export default function Panelim() {
     { ikon: "forum", ad: "Sosyal Ördek", var: ilerleme.forumMesaj >= 1, ipucu: "Foruma ilk mesajını yaz" },
     { ikon: "sure", ad: "Göl Faresi", var: ilerleme.siteDakika >= 120, ipucu: "Platformda 2 saat geçir" },
   ];
-
-  const enCokSoru = Math.max(1, ...DERSLER.map((d) => sorular.dersBazinda[d.id]));
 
   const istatistikler: {
     ikon: IkonAd;
@@ -109,42 +108,39 @@ export default function Panelim() {
         ))}
       </div>
 
+      {/* Günlük aktivite grafikleri */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <AlanGrafigi gunluk={ilerleme.gunluk} alan="soru" baslik="Günlük çözülen soru" birim="soru" />
+        <AlanGrafigi
+          gunluk={ilerleme.gunluk}
+          alan="dakika"
+          baslik="Günlük çalışma süresi"
+          birim="dk"
+          dolgu="#3B9EC4"
+        />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Haftalık ilerleme */}
-        <div className="card p-6">
-          <h2 className="baslik flex items-center gap-2 text-lg">
-            <Ikon ad="konum" boy={20} /> Neredesin?
-          </h2>
-          <p className="mt-1 text-sm text-ink/60">
-            {acikHafta}. haftadasın: <strong>"{hafta.tema}"</strong>
+        {/* Haftalık ilerleme halkaları */}
+        <div className="card p-5">
+          <h3 className="baslik text-base">Bu haftan</h3>
+          <p className="text-xs text-ink/50">
+            {acikHafta}. hafta · "{hafta.tema}"
           </p>
-          <div className="mt-4">
-            <div className="flex justify-between text-xs font-bold text-lacivert/70">
-              <span>Hafta ilerlemesi</span>
-              <span>
-                {haftaTamam}/{hafta.gorevler.length} görev
-              </span>
-            </div>
-            <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-cream-deep">
-              <div
-                className="h-full rounded-full bg-amber transition-all duration-700 dalga-doku"
-                style={{ width: `${haftaYuzde}%` }}
-              />
-            </div>
+          <div className="mt-3 flex items-center justify-around gap-2">
+            <HalkaGrafik
+              yuzde={haftaYuzde}
+              merkez={`%${haftaYuzde}`}
+              etiket={`Görevler (${haftaTamam}/${hafta.gorevler.length})`}
+            />
+            <HalkaGrafik
+              yuzde={hedefYuzde}
+              merkez={`${haftaSoru}`}
+              etiket={`Soru hedefi (${kullanici.hedefHaftalikSoru})`}
+              renk="#3B9EC4"
+            />
           </div>
-          <div className="mt-4">
-            <div className="flex justify-between text-xs font-bold text-lacivert/70">
-              <span>Haftalık soru hedefin ({kullanici.hedefHaftalikSoru})</span>
-              <span>{haftaSoru} soru</span>
-            </div>
-            <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-cream-deep">
-              <div
-                className="h-full rounded-full bg-lacivert transition-all duration-700 dalga-doku"
-                style={{ width: `${hedefYuzde}%` }}
-              />
-            </div>
-          </div>
-          <p className="mt-4 rounded-xl bg-duck/20 px-3 py-2 text-xs font-semibold text-lacivert">
+          <p className="mt-3 rounded-xl bg-duck/20 px-3 py-2 text-xs font-semibold text-lacivert">
             {haftaYuzde === 100
               ? "Bu hafta bitti, yeni hafta seni bekliyor!"
               : haftaYuzde >= 50
@@ -154,40 +150,13 @@ export default function Panelim() {
         </div>
 
         {/* Ders bazında sorular */}
-        <div className="card p-6">
-          <h2 className="baslik flex items-center gap-2 text-lg">
-            <Ikon ad="grafik" boy={20} /> Ders ders sorular
-          </h2>
-          <div className="mt-4 space-y-3">
-            {DERSLER.map((d) => (
-              <div key={d.id}>
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="inline-flex items-center gap-1.5 text-lacivert/80">
-                    <Ikon ad={d.id} boy={16} /> {d.kisaAd}
-                  </span>
-                  <span className="text-ink/50">{sorular.dersBazinda[d.id]} soru</span>
-                </div>
-                <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-cream-deep">
-                  <div
-                    className="h-full rounded-full transition-all duration-700 dalga-doku"
-                    style={{
-                      width: `${(sorular.dersBazinda[d.id] / enCokSoru) * 100}%`,
-                      background: d.renk,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DersBarlari dersBazinda={sorular.dersBazinda} />
 
         {/* Rozetler */}
-        <div className="card p-6">
-          <h2 className="baslik flex items-center gap-2 text-lg">
-            <Ikon ad="rozet" boy={20} /> Rozetlerin
-          </h2>
-          <p className="mt-1 text-xs text-ink/50">{puan} vak puanı topladın</p>
-          <div className="mt-4 grid grid-cols-4 gap-3">
+        <div className="card p-5">
+          <h3 className="baslik text-base">Rozetlerin</h3>
+          <p className="text-xs text-ink/50">{puan} vak puanı topladın</p>
+          <div className="mt-3 grid grid-cols-4 gap-3">
             {rozetler.map((r) => (
               <div
                 key={r.ad}
@@ -203,6 +172,9 @@ export default function Panelim() {
           </div>
         </div>
       </div>
+
+      {/* 28 haftalık harita */}
+      <HaftaHaritasi ilerleme={ilerleme} />
 
       {/* Hızlı erişim */}
       <div className="grid gap-4 sm:grid-cols-3">

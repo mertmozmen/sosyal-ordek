@@ -172,7 +172,7 @@ export default function YonetimOgrenciler() {
                       onClick={async () => {
                         if (confirm(`${k.ad} öğrencisinin TÜM ilerlemesi sıfırlanacak. Emin misin?`)) {
                           await ogrenciIlerlemeYaz(k.id, {
-                            gorevler: {}, tekrarlar: {}, hocaVideolari: {}, katilim: {}, siteDakika: 0, forumMesaj: 0, gorulenEvrimler: {},
+                            gorevler: {}, tekrarlar: {}, hocaVideolari: {}, katilim: {}, siteDakika: 0, forumMesaj: 0, gorulenEvrimler: {}, gunluk: {},
                           });
                           tazele();
                         }

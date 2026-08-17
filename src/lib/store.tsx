@@ -42,6 +42,8 @@ export type Kullanici = {
   rol: "ogrenci" | "yonetici";
 };
 
+export type GunlukAktivite = { soru: number; dakika: number; gorev: number };
+
 export type Ilerleme = {
   gorevler: Record<string, boolean>;
   tekrarlar: Record<string, boolean>;
@@ -50,7 +52,30 @@ export type Ilerleme = {
   siteDakika: number;
   forumMesaj: number;
   gorulenEvrimler: Record<string, boolean>;
+  gunluk: Record<string, GunlukAktivite>;
 };
+
+export function gunAnahtari(kaydir = 0): string {
+  const t = new Date();
+  t.setDate(t.getDate() - kaydir);
+  return t.toISOString().slice(0, 10);
+}
+
+function gunlukEkle(
+  gunluk: Record<string, GunlukAktivite>,
+  ek: Partial<GunlukAktivite>
+): Record<string, GunlukAktivite> {
+  const anahtar = gunAnahtari();
+  const mevcut = gunluk[anahtar] ?? { soru: 0, dakika: 0, gorev: 0 };
+  return {
+    ...gunluk,
+    [anahtar]: {
+      soru: Math.max(0, mevcut.soru + (ek.soru ?? 0)),
+      dakika: Math.max(0, mevcut.dakika + (ek.dakika ?? 0)),
+      gorev: Math.max(0, mevcut.gorev + (ek.gorev ?? 0)),
+    },
+  };
+}
 
 export type GorusmeTalebi = {
   id?: string;
@@ -71,6 +96,7 @@ const BOS_ILERLEME: Ilerleme = {
   siteDakika: 0,
   forumMesaj: 0,
   gorulenEvrimler: {},
+  gunluk: {},
 };
 
 export const YONETICI_SIFRE = "vakvak2026";
@@ -106,6 +132,7 @@ function ilerlemeFromRow(r: Satir | null): Ilerleme {
     siteDakika: r.site_dakika ?? 0,
     forumMesaj: r.forum_mesaj ?? 0,
     gorulenEvrimler: r.gorulen_evrimler ?? {},
+    gunluk: r.gunluk ?? {},
   };
 }
 
@@ -119,6 +146,7 @@ function ilerlemeToRow(userId: string, i: Ilerleme): Satir {
     site_dakika: i.siteDakika,
     forum_mesaj: i.forumMesaj,
     gorulen_evrimler: i.gorulenEvrimler,
+    gunluk: i.gunluk,
     updated_at: new Date().toISOString(),
   };
 }
@@ -192,6 +220,12 @@ function demoIlerlemeUret(): Ilerleme {
     siteDakika: 412,
     forumMesaj: 3,
     gorulenEvrimler: {},
+    gunluk: Object.fromEntries(
+      [42, 0, 65, 30, 78, 22, 55, 0, 60, 35, 82, 18, 48, 25].map((soru, i) => [
+        gunAnahtari(13 - i),
+        { soru, dakika: soru === 0 ? 5 : 25 + soru, gorev: soru === 0 ? 0 : Math.ceil(soru / 20) },
+      ])
+    ),
   };
 }
 
@@ -408,7 +442,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!kullanici) return;
     const sayac = setInterval(() => {
-      setIlerleme((o) => ({ ...o, siteDakika: o.siteDakika + 1 }));
+      setIlerleme((o) => ({
+        ...o,
+        siteDakika: o.siteDakika + 1,
+        gunluk: gunlukEkle(o.gunluk, { dakika: 1 }),
+      }));
     }, 60_000);
     return () => clearInterval(sayac);
   }, [kullanici]);
@@ -478,10 +516,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const demoGiris: Baglam["demoGiris"] = useCallback(async () => {
     const sonuc = await girisYap("demo@sosyalordek.com", "demo1234");
     if (sonuc.ok) {
-      // demo hesabın ilerlemesi boşsa örnek veriyle doldur
+      // demo hesabın ilerlemesi ya da günlük aktivitesi boşsa örnek veriyle doldur
       setIlerleme((mevcut) => {
-        if (Object.keys(mevcut.gorevler).length > 0) return mevcut;
-        return demoIlerlemeUret();
+        if (Object.keys(mevcut.gorevler).length === 0) return demoIlerlemeUret();
+        if (Object.keys(mevcut.gunluk).length === 0) {
+          return { ...mevcut, gunluk: demoIlerlemeUret().gunluk };
+        }
+        return mevcut;
       });
       return;
     }
@@ -519,9 +560,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const gorevToggle = useCallback((id: string) => {
     setIlerleme((o) => {
       const gorevler = { ...o.gorevler };
+      const gorev = GOREV_MAP[id];
+      const isaret = gorevler[id] ? -1 : 1;
       if (gorevler[id]) delete gorevler[id];
       else gorevler[id] = true;
-      return { ...o, gorevler };
+      return {
+        ...o,
+        gorevler,
+        gunluk: gunlukEkle(o.gunluk, { soru: (gorev?.soru ?? 0) * isaret, gorev: isaret }),
+      };
     });
   }, []);
 
