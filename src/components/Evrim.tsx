@@ -32,7 +32,7 @@ export function EvrimSeridi() {
         </span>
       </div>
 
-      <div className="scrollbar-none mt-5 flex items-end justify-between gap-1 overflow-x-auto pb-1">
+      <div className="scrollbar-none mt-4 flex items-end justify-between gap-1 overflow-x-auto pt-3 pb-1">
         {EVRIM_ASAMALARI.map((a) => {
           const durum = a.no < asama.no ? "gecti" : a.no === asama.no ? "simdi" : "kilitli";
           return (
