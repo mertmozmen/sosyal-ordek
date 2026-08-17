@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { OrdekAmblem } from "@/components/Logo";
+
+const KOK = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
 
 export const metadata = { title: "Biz Kimiz? — Sosyal Ördek" };
@@ -14,9 +15,14 @@ export default function Hakkimizda() {
         </h1>
       </div>
 
-      <div className="card mt-10 grid items-center gap-8 p-8 md:grid-cols-[auto_1fr] md:p-10">
-        <OrdekAmblem boy={150} className="mx-auto" />
-        <div className="space-y-4 leading-relaxed text-ink/80">
+      <div className="card mt-10 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${KOK}/gorseller/gol-sinifi.svg`}
+          alt="Göl kenarında ders işleyen ördek hocalar ve öğrenciler"
+          className="w-full"
+        />
+        <div className="space-y-4 p-8 leading-relaxed text-ink/80 md:p-10">
           <p>
             Sosyal Ördek, "LGS hazırlığı neden bu kadar soğuk ve yalnız?" sorusuna verilen sıcak
             bir cevaptır. Kurucu ekibimiz yıllarca dershanelerde ve okullarda çalışırken hep aynı

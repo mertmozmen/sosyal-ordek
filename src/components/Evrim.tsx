@@ -113,15 +113,26 @@ export function EvrimKutlama() {
           Yumurtadan Ördeğe · {asama.no + 1}/7
         </span>
         <div className="mt-5 flex items-center justify-center gap-4">
-          {asama.no > 0 && (
+          {asama.no === 6 ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/gorseller/kutlama.svg`}
+              alt="Mezuniyet kutlaması"
+              className="sicra w-52 rounded-2xl"
+            />
+          ) : (
             <>
-              <EvrimFigur asama={asama.no - 1} boy={64} className="opacity-40 grayscale" />
-              <span className="font-display text-2xl font-extrabold text-amber">→</span>
+              {asama.no > 0 && (
+                <>
+                  <EvrimFigur asama={asama.no - 1} boy={64} className="opacity-40 grayscale" />
+                  <span className="font-display text-2xl font-extrabold text-amber">→</span>
+                </>
+              )}
+              <span className="sicra inline-block">
+                <EvrimFigur asama={asama.no} boy={130} className="animate-bob" />
+              </span>
             </>
           )}
-          <span className="sicra inline-block">
-            <EvrimFigur asama={asama.no} boy={130} className="animate-bob" />
-          </span>
         </div>
         <h2 className="baslik mt-4 text-3xl">
           {asama.no === 0 ? "Göle hoş geldin!" : `${asama.ad} oldun!`}

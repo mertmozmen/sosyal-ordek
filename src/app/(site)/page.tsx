@@ -4,8 +4,9 @@ import { VakvakRehber } from "@/components/VakvakRehber";
 import { GirisVideosu, TanitimButonu } from "@/components/GirisVideosu";
 import { Belir, Dalga } from "@/components/efektler";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
-import { EvrimFigur } from "@/components/EvrimFigur";
-import { DERSLER, EVRIM_ASAMALARI, HOCALAR, SSS } from "@/lib/data";
+import { DERSLER, HOCALAR, SSS } from "@/lib/data";
+
+const KOK = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const OZELLIKLER: { ikon: IkonAd; baslik: string; metin: string }[] = [
   {
@@ -213,29 +214,19 @@ export default function AnaSayfa() {
             ))}
           </div>
 
-          {/* Yumurtadan Ördeğe evrim şeridi */}
+          {/* Yumurtadan Ördeğe evrim illüstrasyonu */}
           <Belir gecikme={250}>
-            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6">
-              <p className="text-center font-display text-sm font-bold text-duck">
+            <div className="mt-10 overflow-hidden rounded-3xl border border-white/10 bg-white p-4 sm:p-6">
+              <p className="text-center font-display text-sm font-bold text-lacivert">
                 Her öğrenci gölde bir yumurta olarak başlar; her hafta biraz daha büyür,
                 28. haftada kepini takar!
               </p>
-              <div className="scrollbar-none mt-5 flex items-end justify-between gap-2 overflow-x-auto pb-1">
-                {EVRIM_ASAMALARI.map((a, i) => (
-                  <div key={a.no} className="flex min-w-16 flex-col items-center gap-1.5 text-center">
-                    <span
-                      className="flex items-center justify-center rounded-2xl bg-white/95 p-1.5"
-                      style={{ animation: `bob ${3 + i * 0.35}s ease-in-out infinite` }}
-                    >
-                      <EvrimFigur asama={a.no} boy={i === EVRIM_ASAMALARI.length - 1 ? 56 : 44} />
-                    </span>
-                    <span className="text-[10px] leading-tight font-bold text-white/80">{a.ad}</span>
-                    <span className="text-[9px] text-white/40">
-                      {a.no === 0 ? "başlangıç" : `${a.minHafta}. hafta`}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${KOK}/gorseller/evrim-yolculuk.svg`}
+                alt="Yumurtadan mezun ördeğe: yedi aşamalı gelişim yolculuğu"
+                className="mx-auto mt-2 w-full max-w-3xl"
+              />
             </div>
           </Belir>
         </div>
@@ -382,6 +373,13 @@ export default function AnaSayfa() {
                 Hemen Kayıt Ol
               </Link>
             </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${KOK}/gorseller/dalis.svg`}
+              alt=""
+              aria-hidden
+              className="pointer-events-none absolute -right-4 bottom-0 hidden w-52 rotate-3 rounded-2xl opacity-95 lg:block"
+            />
           </div>
         </Belir>
       </section>
