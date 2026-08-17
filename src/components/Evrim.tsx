@@ -43,10 +43,10 @@ export function EvrimSeridi() {
                     ? "scale-110 bg-duck/30 ring-2 ring-amber"
                     : durum === "gecti"
                       ? "bg-cream-deep/70"
-                      : "bg-cream-deep/40 opacity-40 grayscale"
+                      : "bg-[#EEF2F6]"
                 }`}
               >
-                <EvrimFigur asama={a.no} boy={durum === "simdi" ? 52 : 42} className={durum === "simdi" ? "animate-bob" : ""} />
+                <EvrimFigur asama={a.no} boy={durum === "simdi" ? 52 : 42} siluet={durum === "kilitli"} className={durum === "simdi" ? "animate-bob" : ""} />
                 {durum === "gecti" && (
                   <span className="absolute -top-1 -right-1"><Ikon ad="tik" boy={16} /></span>
                 )}
@@ -124,7 +124,7 @@ export function EvrimKutlama() {
             <>
               {asama.no > 0 && (
                 <>
-                  <EvrimFigur asama={asama.no - 1} boy={64} className="opacity-40 grayscale" />
+                  <EvrimFigur asama={asama.no - 1} boy={64} siluet />
                   <span className="font-display text-2xl font-extrabold text-amber">→</span>
                 </>
               )}

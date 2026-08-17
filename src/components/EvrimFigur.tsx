@@ -1,10 +1,27 @@
-const N = "#1E3A5F";
-const W = "#FFFFFF";
-const A = "#F5A623";
-const KANAT = "#F0EAD9";
+/** Yumurtadan Ördeğe: 7 aşamanın marka stilinde figürleri.
+ *  siluet: kilitli aşamalar için tek tonlu, temiz gölge görünümü
+ *  (grayscale filtresi beyaz dolguları yok edip figürü cılız konturlara
+ *  çeviriyordu — bu yüzden renkler palet üzerinden veriliyor). */
+export function EvrimFigur({
+  asama,
+  boy = 64,
+  className = "",
+  siluet = false,
+}: {
+  asama: number;
+  boy?: number;
+  className?: string;
+  siluet?: boolean;
+}) {
+  const N = siluet ? "#AFBDCB" : "#1E3A5F"; // kontur
+  const W = siluet ? "#DFE6EC" : "#FFFFFF"; // beyaz dolgular
+  const A = siluet ? "#C7D1DB" : "#F5A623"; // amber (gaga/ayak)
+  const KANAT = siluet ? "#D5DDE5" : "#F0EAD9";
+  const KOYU = siluet ? "#AFBDCB" : "#16304F"; // delik / kep tepesi
+  const DETAY = siluet ? "#AFBDCB" : "#C77E0A"; // gaga kenarı
+  const KEP_KENAR = siluet ? "#9FAFC0" : "#152C4A";
+  const PUSKUL = siluet ? "#C7D1DB" : "#FFC93C";
 
-/** Yumurtadan Ördeğe: 7 aşamanın marka stilinde figürleri */
-export function EvrimFigur({ asama, boy = 64, className = "" }: { asama: number; boy?: number; className?: string }) {
   return (
     <svg viewBox="0 0 120 120" width={boy} height={boy} className={`inline-block shrink-0 ${className}`} aria-hidden>
       <ellipse cx="60" cy={asama >= 3 ? 113 : 106} rx="28" ry="5.5" fill={N} opacity="0.08" />
@@ -25,8 +42,8 @@ export function EvrimFigur({ asama, boy = 64, className = "" }: { asama: number;
           <path d="M60 16 C79 16 91 44 91 68 a31 31 0 0 1 -62 0 C29 44 41 16 60 16 Z" fill={W} stroke={N} strokeWidth="4" />
           <path d="M34 60 l13 7 8-8" fill="none" stroke={N} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M69 61 l8 7 9-6" fill="none" stroke={N} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="61" cy="62" r="8.5" fill="#16304F" stroke={N} strokeWidth="2.5" />
-          <path d="M55 60 h12 l-6 8 Z" fill={A} stroke="#C77E0A" strokeWidth="1.6" strokeLinejoin="round" />
+          <circle cx="61" cy="62" r="8.5" fill={KOYU} stroke={N} strokeWidth="2.5" />
+          <path d="M55 60 h12 l-6 8 Z" fill={A} stroke={DETAY} strokeWidth="1.6" strokeLinejoin="round" />
         </>
       )}
 
@@ -70,10 +87,10 @@ export function EvrimFigur({ asama, boy = 64, className = "" }: { asama: number;
           {/* mezun kepi */}
           {asama >= 6 && (
             <>
-              <ellipse cx="60" cy="21" rx="18" ry="7" fill="#16304F" />
-              <polygon points="24,17 60,3 96,17 60,30" fill={N} stroke="#152C4A" strokeWidth="2" strokeLinejoin="round" />
-              <path d="M93 18 q5 6 4 14" fill="none" stroke={A} strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="97" cy="36" r="4" fill="#FFC93C" stroke={N} strokeWidth="1.6" />
+              <ellipse cx="60" cy="21" rx="18" ry="7" fill={KOYU} />
+              <polygon points="24,17 60,3 96,17 60,30" fill={N} stroke={KEP_KENAR} strokeWidth="2" strokeLinejoin="round" />
+              <path d="M93 18 q5 6 4 14" fill="none" stroke={siluet ? N : A} strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx="97" cy="36" r="4" fill={PUSKUL} stroke={N} strokeWidth="1.6" />
             </>
           )}
 
