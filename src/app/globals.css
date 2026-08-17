@@ -377,8 +377,166 @@ body {
   animation: belir-yukari 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 
+/* Göl temalı butonlar: üzerinden dalga geçer, suda yüzer gibi sallanır */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  left: -60px;
+  right: -60px;
+  bottom: -3px;
+  height: 55%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7 Q10 0 20 7 T40 7 V14 H0 Z' fill='%23FFFFFF' fill-opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 40px 14px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.btn-ghost::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7 Q10 0 20 7 T40 7 V14 H0 Z' fill='%23FFC93C' fill-opacity='0.45'/%3E%3C/svg%3E");
+}
+.btn:hover::after {
+  opacity: 1;
+  animation: dalga-kaydir-mini 1.1s linear infinite;
+}
 .btn:hover {
-  translate: 0 -2px;
+  animation: btn-yuz 1.7s ease-in-out infinite;
+}
+
+@keyframes dalga-kaydir-mini {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: 40px;
+  }
+}
+
+@keyframes btn-yuz {
+  0%,
+  100% {
+    translate: 0 -2px;
+    rotate: 0deg;
+  }
+  25% {
+    translate: 0 -3.5px;
+    rotate: 1deg;
+  }
+  75% {
+    translate: 0 -1px;
+    rotate: -1deg;
+  }
+}
+
+/* Su dolu ilerleme çubukları */
+.dalga-doku {
+  position: relative;
+  overflow: hidden;
+}
+.dalga-doku::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 10'%3E%3Cpath d='M0 5 Q7 0 14 5 T28 5 V10 H0 Z' fill='%23FFFFFF' fill-opacity='0.3'/%3E%3C/svg%3E");
+  background-size: 28px 10px;
+  background-repeat: repeat-x;
+  background-position: 0 40%;
+  animation: dalga-kaydir-mini 1.3s linear infinite;
+  pointer-events: none;
+}
+
+/* Sayfa geçişi: ördek tramplene çıkar, göle atlar, su ekranı kaplar */
+@keyframes gecis-su-dol {
+  0% {
+    transform: translateY(101%);
+  }
+  26% {
+    transform: translateY(76%);
+  }
+  66% {
+    transform: translateY(76%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+.gecis-su-dol {
+  animation: gecis-su-dol 1s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+
+@keyframes gecis-su-cekil {
+  from {
+    transform: translateY(0%);
+  }
+  to {
+    transform: translateY(101%);
+  }
+}
+.gecis-su-cekil {
+  animation: gecis-su-cekil 0.6s cubic-bezier(0.55, 0, 0.85, 1) forwards;
+}
+
+@keyframes gecis-tahta {
+  0% {
+    transform: translateY(-140%);
+  }
+  14% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.gecis-tahta {
+  animation: gecis-tahta 1s ease-out forwards;
+}
+
+@keyframes gecis-ordek {
+  0% {
+    transform: translate(4vw, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  38% {
+    transform: translate(-9vw, 0) rotate(-4deg);
+  }
+  50% {
+    transform: translate(-12vw, -10vh) rotate(-30deg);
+  }
+  80% {
+    transform: translate(-16vw, 56vh) rotate(-175deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-17vw, 68vh) rotate(-185deg);
+    opacity: 0;
+  }
+}
+.gecis-ordek {
+  animation: gecis-ordek 1s cubic-bezier(0.5, 0, 0.75, 1) forwards;
+}
+
+@keyframes pit-pop {
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.4) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 
 .halka {

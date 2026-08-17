@@ -32,7 +32,7 @@ export default function HaftalikPlan() {
         </div>
         <div className="mt-2 h-3.5 overflow-hidden rounded-full bg-cream-deep">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber to-duck transition-all"
+            className="h-full rounded-full bg-gradient-to-r from-amber to-duck transition-all dalga-doku"
             style={{ width: `${Math.max(2, genelYuzde)}%` }}
           />
         </div>

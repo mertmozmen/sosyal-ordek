@@ -71,7 +71,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
               <span className="text-white/70">{tamamHafta}/28 hafta</span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full rounded-full bg-duck transition-all duration-700" style={{ width: `${asamaYuzde}%` }} />
+              <div className="h-full rounded-full bg-duck transition-all duration-700 dalga-doku" style={{ width: `${asamaYuzde}%` }} />
             </div>
             {sonraki && (
               <p className="mt-1 text-[10px] text-white/50">

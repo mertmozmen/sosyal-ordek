@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Baloo_2, Montserrat, Nunito } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
+import { SayfaGecisi } from "@/components/SayfaGecisi";
 
 const baloo = Baloo_2({
   subsets: ["latin-ext"],
@@ -36,7 +37,10 @@ export default function RootLayout({
       <body
         className={`${baloo.variable} ${nunito.variable} ${montserrat.variable} font-sans antialiased`}
       >
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          {children}
+          <SayfaGecisi />
+        </AppProvider>
       </body>
     </html>
   );

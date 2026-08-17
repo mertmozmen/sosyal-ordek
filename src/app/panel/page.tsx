@@ -127,7 +127,7 @@ export default function Panelim() {
             </div>
             <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-cream-deep">
               <div
-                className="h-full rounded-full bg-amber transition-all duration-700"
+                className="h-full rounded-full bg-amber transition-all duration-700 dalga-doku"
                 style={{ width: `${haftaYuzde}%` }}
               />
             </div>
@@ -139,7 +139,7 @@ export default function Panelim() {
             </div>
             <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-cream-deep">
               <div
-                className="h-full rounded-full bg-lacivert transition-all duration-700"
+                className="h-full rounded-full bg-lacivert transition-all duration-700 dalga-doku"
                 style={{ width: `${hedefYuzde}%` }}
               />
             </div>
@@ -169,7 +169,7 @@ export default function Panelim() {
                 </div>
                 <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-cream-deep">
                   <div
-                    className="h-full rounded-full transition-all duration-700"
+                    className="h-full rounded-full transition-all duration-700 dalga-doku"
                     style={{
                       width: `${(sorular.dersBazinda[d.id] / enCokSoru) * 100}%`,
                       background: d.renk,
