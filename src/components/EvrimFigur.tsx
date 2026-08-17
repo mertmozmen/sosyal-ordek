@@ -35,7 +35,7 @@ export function EvrimFigur({
       height={boy}
       draggable={false}
       className={`inline-block shrink-0 object-contain select-none ${
-        siluet ? "opacity-40 grayscale" : ""
+        siluet ? "opacity-90 grayscale" : ""
       } ${className}`}
     />
   );
