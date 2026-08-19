@@ -392,6 +392,8 @@ export type Tekrar = {
   sure: string;
   tarih: string;
   hafta: number;
+  /** Canlı yayından otomatik kaydedilen video (Storage URL'i); yoksa tanıtım videosu oynar */
+  videoUrl?: string | null;
 };
 
 function tekrarUret(): Tekrar[] {

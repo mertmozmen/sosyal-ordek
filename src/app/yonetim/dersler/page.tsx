@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Ikon } from "@/components/ikonlar";
 import { DERSLER, DERS_MAP, GUNLER, HOCALAR, type CanliDers, type DersId, type YayinHedef } from "@/lib/data";
@@ -242,7 +243,14 @@ export default function YonetimDersler() {
                   {hoca?.ad ?? "—"} · {GUNLER[d.gun]} {d.saat} · {d.sure} dk
                 </p>
               </div>
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Link
+                  href={`/yonetim/yayin?d=${d.id}`}
+                  className={`btn btn-sm ${d.durum === "canli" ? "bg-red-500 text-white" : "btn-amber"}`}
+                >
+                  <span className={`h-2 w-2 rounded-full ${d.durum === "canli" ? "animate-pulse bg-white" : "bg-red-500"}`} />
+                  {d.durum === "canli" ? "Yayına Dön" : "Yayın Odası"}
+                </Link>
                 <button className="btn btn-ghost btn-sm" onClick={() => duzenle(d)}>
                   <Ikon ad="duzenle" boy={14} /> Düzenle
                 </button>

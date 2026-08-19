@@ -6,7 +6,7 @@ import { DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
 import { dersGorunurMu, useStore } from "@/lib/store";
 
 export default function OnlineDerslerim() {
-  const { ilerleme, dersKatil, canliDersler, kullanici, uyelikler } = useStore();
+  const { ilerleme, canliDersler, kullanici, uyelikler } = useStore();
   const dersListesi = canliDersler.filter(
     (d) => d.tur === "ders" && dersGorunurMu(d, kullanici?.id, uyelikler)
   );
@@ -71,14 +71,18 @@ export default function OnlineDerslerim() {
                 </p>
               </div>
               <div className="flex shrink-0 gap-2">
-                {katildi ? (
+                {cd.durum === "canli" ? (
+                  <Link href={`/panel/yayin?d=${cd.id}`} className="btn btn-amber btn-md">
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Derse Katıl
+                  </Link>
+                ) : katildi ? (
                   <Link href="/panel/tekrarlarim" className="btn btn-ghost btn-md">
                     Kaydı izle
                   </Link>
                 ) : (
-                  <button onClick={() => dersKatil(cd.id)} className="btn btn-amber btn-md">
-                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Derse Katıl
-                  </button>
+                  <span className="btn btn-ghost btn-md cursor-default opacity-60">
+                    Yayın saatinde açılır
+                  </span>
                 )}
               </div>
             </div>
@@ -87,8 +91,8 @@ export default function OnlineDerslerim() {
       </div>
 
       <p className="text-center text-xs text-ink/45">
-        Demo not: "Derse Katıl" gerçek uygulamada Zoom/Meet bağlantısını açar; burada katılımını
-        paneline işler.
+        Hocan yayını başlattığında ders kartında "Derse Katıl" butonu belirir ve sana bildirim
+        gelir — görüntülü, sesli, sohbetli gerçek canlı ders!
       </p>
     </div>
   );

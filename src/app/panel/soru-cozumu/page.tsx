@@ -7,7 +7,7 @@ import { DERSLER, DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
 import { dersGorunurMu, useStore } from "@/lib/store";
 
 export default function SoruCozumu() {
-  const { ilerleme, dersKatil, canliDersler, kullanici, uyelikler } = useStore();
+  const { ilerleme, canliDersler, kullanici, uyelikler } = useStore();
   const oturumlar = canliDersler.filter(
     (d) => d.tur === "soru" && dersGorunurMu(d, kullanici?.id, uyelikler)
   );
@@ -67,21 +67,32 @@ export default function SoruCozumu() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="baslik text-base">{o.baslik}</h3>
+                    {o.durum === "canli" && (
+                      <span className="chip bg-red-500 text-white">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-white" /> CANLI
+                      </span>
+                    )}
                     {bugunMu && <span className="chip bg-amber text-lacivert-koyu"><Ikon ad="konum" boy={13} /> Bugün</span>}
+                    {o.hedef === "grup" && <span className="chip bg-lacivert/10 text-lacivert">Grup oturumu</span>}
+                    {o.hedef === "ogrenci" && <span className="chip bg-lacivert text-duck">Sana özel</span>}
                     {katildi && <span className="chip bg-green-100 text-green-700">✓ Katıldın</span>}
                   </div>
                   <p className="mt-1 text-sm text-ink/60">
                     {hoca.ad} · {GUNLER[o.gun]} {o.saat} · {o.sure} dk
                   </p>
                 </div>
-                {katildi ? (
+                {o.durum === "canli" ? (
+                  <Link href={`/panel/yayin?d=${o.id}`} className="btn btn-amber btn-md shrink-0">
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Oturuma Katıl
+                  </Link>
+                ) : katildi ? (
                   <Link href="/panel/tekrarlarim?tab=soru" className="btn btn-ghost btn-md shrink-0">
                     Kaydı izle
                   </Link>
                 ) : (
-                  <button onClick={() => dersKatil(o.id)} className="btn btn-amber btn-md shrink-0">
-                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-red-500" /> Oturuma Katıl
-                  </button>
+                  <span className="btn btn-ghost btn-md shrink-0 cursor-default opacity-60">
+                    Yayın saatinde açılır
+                  </span>
                 )}
               </div>
             );

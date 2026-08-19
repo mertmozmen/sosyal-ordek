@@ -9,18 +9,22 @@ type Props = {
   acik: boolean;
   baslik: string;
   altBaslik?: string;
+  /** Özel video kaynağı (örn. canlı yayın kaydı); verilmezse tanıtım videosu oynar */
+  videoUrl?: string | null;
   onKapat: () => void;
   onBitti?: () => void;
 };
 
-export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props) {
+export function VideoModal({ acik, baslik, altBaslik, videoUrl, onKapat, onBitti }: Props) {
   const { siteAyarlar } = useStore();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [bitti, setBitti] = useState(false);
   const enCokOran = useRef(0);
   const sayildi = useRef(false);
 
-  const url = medyaYolu(siteAyarlar["tanitim_video_url"] || "video/tanitim.mp4");
+  const url = videoUrl?.startsWith("http")
+    ? videoUrl
+    : medyaYolu(videoUrl || siteAyarlar["tanitim_video_url"] || "video/tanitim.mp4");
 
   useEffect(() => {
     if (!acik) {
@@ -106,7 +110,7 @@ export function VideoModal({ acik, baslik, altBaslik, onKapat, onBitti }: Props)
             </div>
           )}
           <span className="absolute top-3 left-3 chip bg-white/15 text-white backdrop-blur">
-            <Ikon ad="video" boy={14} /> Tanıtım videosu
+            <Ikon ad="video" boy={14} /> {videoUrl ? "Ders kaydı" : "Tanıtım videosu"}
           </span>
         </div>
       </div>

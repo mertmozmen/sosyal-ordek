@@ -248,6 +248,7 @@ function tekrarFromRow(r: Satir): Tekrar {
     sure: r.sure,
     tarih: r.tarih,
     hafta: r.hafta,
+    videoUrl: r.video_url ?? null,
   };
 }
 
@@ -337,6 +338,7 @@ type Baglam = {
     yayinId?: string | null;
   }) => Promise<{ ok: boolean }>;
   bildirimSil: (id: string) => Promise<void>;
+  kayitYukle: (dosyaAdi: string, blob: Blob) => Promise<string | null>;
   gruplariYukle: () => Promise<Grup[]>;
   grupKaydet: (grup: { id?: string; ad: string; aciklama?: string; renk?: string }) => Promise<string | null>;
   grupSil: (id: string) => Promise<void>;
@@ -956,7 +958,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     supabase
       .from("tekrarlar")
-      .upsert({ id: tekrar.id, tur: tekrar.tur, ders: tekrar.ders, baslik: tekrar.baslik, hoca_id: tekrar.hocaId, sure: tekrar.sure, tarih: tekrar.tarih, hafta: tekrar.hafta })
+      .upsert({ id: tekrar.id, tur: tekrar.tur, ders: tekrar.ders, baslik: tekrar.baslik, hoca_id: tekrar.hocaId, sure: tekrar.sure, tarih: tekrar.tarih, hafta: tekrar.hafta, video_url: tekrar.videoUrl ?? null })
       .then(undefined, () => {});
   }, []);
 
@@ -1051,6 +1053,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from("bildirimler").delete().eq("id", id);
   }, []);
 
+  const kayitYukle: Baglam["kayitYukle"] = useCallback(async (dosyaAdi, blob) => {
+    const { error } = await supabase.storage
+      .from("kayitlar")
+      .upload(dosyaAdi, blob, { contentType: blob.type || "video/webm", upsert: true });
+    if (error) return null;
+    return supabase.storage.from("kayitlar").getPublicUrl(dosyaAdi).data.publicUrl;
+  }, []);
+
   const gruplariYukle: Baglam["gruplariYukle"] = useCallback(async () => {
     const [grupRes, uyeRes] = await Promise.all([
       supabase.from("gruplar").select("*").order("created_at"),
@@ -1143,6 +1153,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         mesajSil,
         bildirimGonder,
         bildirimSil,
+        kayitYukle,
         gruplariYukle,
         grupKaydet,
         grupSil,

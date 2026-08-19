@@ -101,6 +101,7 @@ export default function Tekrarlarim() {
         acik={!!acik}
         baslik={acik?.baslik ?? ""}
         altBaslik={acik ? `${HOCALAR.find((h) => h.id === acik.hocaId)?.ad} · ${acik.sure}` : undefined}
+        videoUrl={acik?.videoUrl}
         onKapat={() => setAcik(null)}
         onBitti={() => acik && tekrarIzle(acik.id)}
       />
