@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Ikon } from "@/components/ikonlar";
 import { DERS_MAP, HOCALAR } from "@/lib/data";
 import { useStore } from "@/lib/store";
-import { useIstemciHazir, useOgrenciYayin, useSorguParam } from "@/lib/yayin";
+import { KATILIMCI_LIMITI, useIstemciHazir, useOgrenciYayin, useSorguParam } from "@/lib/yayin";
 
 export default function OgrenciYayinOdasi() {
   const { canliDersler, kullanici, dersKatil } = useStore();
@@ -112,6 +112,23 @@ export default function OgrenciYayinOdasi() {
                 <p className="text-sm font-bold text-white/80">
                   {yayin.ogretmenVar ? "Hocana bağlanıyoruz..." : "Hoca gölde görünene kadar bekliyoruz..."}
                 </p>
+              </div>
+            )}
+
+            {yayin.asama === "dolu" && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-lacivert-koyu/90 p-6 text-center">
+                <Ikon ad="kullanici" boy={48} className="opacity-60" />
+                <p className="baslik text-lg text-white">Ders dolu — vak!</p>
+                <p className="max-w-sm text-xs text-white/70">
+                  Görüntü kalitesini korumak için bir derse en fazla {KATILIMCI_LIMITI} kişi
+                  katılabiliyor. Üzülme: dersin kaydı bitince Ders Tekrarlarım'a düşecek.
+                </p>
+                <div className="mt-1 flex gap-2">
+                  <button onClick={() => window.location.reload()} className="btn btn-ghost btn-md !border-white/30 !bg-transparent !text-white hover:!bg-white/10">
+                    Yer açıldı mı bak
+                  </button>
+                  <Link href="/panel/tekrarlarim" className="btn btn-amber btn-md">Ders Tekrarlarım</Link>
+                </div>
               </div>
             )}
 

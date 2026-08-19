@@ -6,7 +6,7 @@ import { OrdekAvatar } from "@/components/Logo";
 import { Ikon } from "@/components/ikonlar";
 import { DERS_MAP, HOCALAR, GUNLER } from "@/lib/data";
 import { useStore } from "@/lib/store";
-import { useIstemciHazir, useOgretmenYayin, useSorguParam } from "@/lib/yayin";
+import { KATILIMCI_LIMITI, useIstemciHazir, useOgretmenYayin, useSorguParam } from "@/lib/yayin";
 
 export default function YonetimYayinOdasi() {
   const { canliDersler, kullanici, dersKaydet, bildirimGonder, kayitYukle, tekrarKaydet, tekrarlar } = useStore();
@@ -239,7 +239,7 @@ export default function YonetimYayinOdasi() {
         <div className="flex flex-col gap-4">
           <div className="card p-4">
             <h2 className="baslik flex items-center gap-2 text-sm">
-              <Ikon ad="kullanici" boy={17} /> Katılımcılar ({yayin.katilimcilar.length})
+              <Ikon ad="kullanici" boy={17} /> Katılımcılar ({yayin.katilimcilar.length}/{KATILIMCI_LIMITI})
             </h2>
             <div className="mt-2 max-h-48 space-y-1.5 overflow-y-auto">
               {yayin.katilimcilar.length === 0 && (

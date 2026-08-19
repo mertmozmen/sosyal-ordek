@@ -32,6 +32,11 @@ const RTC_AYAR: RTCConfiguration = {
   iceServers: [{ urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] }],
 };
 
+/** P2P mimaride kalite güvencesi: öğretmenin interneti her öğrenciye ayrı
+ *  kopya yollar; bu sınırın üstünde herkesin görüntüsü bozulur. (LiveKit'e
+ *  geçince kalkacak.) */
+export const KATILIMCI_LIMITI = 12;
+
 export type Katilimci = { id: string; ad: string; el: boolean };
 export type SohbetMesaji = { id: string; ad: string; rol: "ogretmen" | "ogrenci"; metin: string };
 
@@ -411,7 +416,7 @@ export function useOgretmenYayin(
 /* ÖĞRENCİ                                                             */
 /* ------------------------------------------------------------------ */
 
-export type OgrenciAsama = "bekliyor" | "baglaniyor" | "izliyor" | "bitti" | "hata";
+export type OgrenciAsama = "bekliyor" | "baglaniyor" | "izliyor" | "dolu" | "bitti" | "hata";
 
 export function useOgrenciYayin(
   dersId: string | null,
@@ -454,11 +459,18 @@ export function useOgrenciYayin(
     });
     kanalRef.current = kanal;
 
+    let ilkSyncCoz: (() => void) | null = null;
+    const ilkSync = new Promise<void>((coz) => {
+      ilkSyncCoz = coz;
+    });
+
     kanal
       .on("presence", { event: "sync" }, () => {
         const { liste, ogretmenVar: hoca } = katilimcilariCoz(kanal);
         setKatilimciSayisi(liste.length);
         setOgretmenVar(hoca);
+        ilkSyncCoz?.();
+        ilkSyncCoz = null;
       })
       .on("broadcast", { event: "teklif" }, async ({ payload }) => {
         const p = payload as { hedef: string; sdp: RTCSessionDescriptionInit };
@@ -543,6 +555,19 @@ export function useOgrenciYayin(
       setAsama("hata");
       return;
     }
+
+    // kota: mevcut katılımcıları görmek için ilk presence sync'ini bekle
+    await Promise.race([ilkSync, new Promise((coz) => setTimeout(coz, 2500))]);
+    const digerleri = katilimcilariCoz(kanal).liste.filter((k) => k.id !== kullaniciId);
+    if (digerleri.length >= KATILIMCI_LIMITI) {
+      setAsama("dolu");
+      mikrofonRef.current?.getTracks().forEach((t) => t.stop());
+      mikrofonRef.current = null;
+      supabase.removeChannel(kanal);
+      kanalRef.current = null;
+      return;
+    }
+
     await kanal.track({ ad, rol: "ogrenci", el: false } satisfies PresenceYuku);
     kanal.send({ type: "broadcast", event: "istek", payload: { ogrenciId: kullaniciId, ad } });
   }, [dersId, kullaniciId, ad, videoRef]);
