@@ -312,7 +312,7 @@ type Baglam = {
   bildirimOku: (id: string) => void;
   tumBildirimleriOku: () => void;
   // yönetim
-  yoneticiGiris: (sifre: string) => Promise<boolean>;
+  yoneticiGiris: (email: string, sifre: string) => Promise<boolean>;
   yoneticiCikis: () => void;
   ogrencileriYukle: () => Promise<OgrenciOzet[]>;
   ogrenciGuncelle: (id: string, kisim: Partial<Kullanici>) => Promise<void>;
@@ -833,14 +833,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ---- Yönetim ----
 
   const yoneticiGiris: Baglam["yoneticiGiris"] = useCallback(
-    async (sifre) => {
+    async (email, sifre) => {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: "admin@sosyalordek.com",
+          email: email.trim() || "admin@sosyalordek.com",
           password: sifre,
         });
         if (error) return false;
-        const k = await profilVeIlerlemeYukle(data.session.user.id, "admin@sosyalordek.com", "Göl Kaptanı");
+        const k = await profilVeIlerlemeYukle(data.session.user.id, email, "Göl Kaptanı");
         if (k.rol !== "yonetici") {
           await supabase.auth.signOut();
           return false;

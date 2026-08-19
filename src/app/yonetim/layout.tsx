@@ -20,6 +20,7 @@ const MENU: { href: string; ad: string; ikon: IkonAd }[] = [
 export default function YonetimLayout({ children }: { children: React.ReactNode }) {
   const { yonetici, yoneticiGiris, yoneticiCikis, yuklendi } = useStore();
   const yol = usePathname();
+  const [email, setEmail] = useState("kaptan@sosyalordek.com");
   const [sifre, setSifre] = useState("");
   const [hata, setHata] = useState("");
 
@@ -50,10 +51,21 @@ export default function YonetimLayout({ children }: { children: React.ReactNode 
             onSubmit={async (e) => {
               e.preventDefault();
               setHata("Kaptan köşküne çıkılıyor...");
-              const ok = await yoneticiGiris(sifre);
-              setHata(ok ? "" : "Şifre yanlış, vak! Tekrar dene.");
+              const ok = await yoneticiGiris(email, sifre);
+              setHata(ok ? "" : "E-posta ya da şifre yanlış, vak! Tekrar dene.");
             }}
           >
+            <div>
+              <label className="label" htmlFor="yEmail">Yönetici e-postası</label>
+              <input
+                id="yEmail"
+                type="email"
+                className="input"
+                placeholder="kaptan@sosyalordek.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
             <div>
               <label className="label" htmlFor="ySifre">Yönetici şifresi</label>
               <input
@@ -72,7 +84,7 @@ export default function YonetimLayout({ children }: { children: React.ReactNode 
               <Ikon ad="kilit" boy={17} /> Panele Gir
             </button>
             <p className="text-center text-xs text-ink/45">
-              Demo şifresi: <strong>vakvak2026</strong>
+              Demo: <strong>admin@sosyalordek.com</strong> / <strong>vakvak2026</strong>
             </p>
           </form>
           <Link href="/" className="btn btn-ghost btn-md mt-4 w-full">
