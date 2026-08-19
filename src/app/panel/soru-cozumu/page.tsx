@@ -46,6 +46,15 @@ export default function SoruCozumu() {
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-4">
           <h2 className="baslik text-lg">Bu haftanın canlı oturumları</h2>
+          {oturumlar.length === 0 && (
+            <div className="card p-8 text-center">
+              <Ikon ad="soru" boy={40} className="mx-auto opacity-40" />
+              <p className="baslik mt-2 text-base text-lacivert/60">Planlanmış oturum yok</p>
+              <p className="mt-1 text-sm text-ink/50">
+                Hocan soru çözüm oturumu açınca burada görünecek, vak!
+              </p>
+            </div>
+          )}
           {oturumlar.map((o) => {
             const ders = DERS_MAP[o.ders] ?? { id: "genel", renk: "#F2A83B", kisaAd: "Genel" };
             const hoca = HOCALAR.find((h) => h.id === o.hocaId)!;

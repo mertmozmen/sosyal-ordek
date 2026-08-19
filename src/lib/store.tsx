@@ -320,7 +320,7 @@ type Baglam = {
   ogrenciIlerlemeYaz: (id: string, ilerleme: Ilerleme) => Promise<void>;
   talepleriGetir: () => Promise<GorusmeTalebi[]>;
   siteAyarKaydet: (anahtar: string, deger: string) => Promise<void>;
-  dersKaydet: (ders: CanliDers) => void;
+  dersKaydet: (ders: CanliDers) => Promise<boolean>;
   dersSil: (id: string) => void;
   tekrarKaydet: (tekrar: Tekrar) => void;
   tekrarSil: (id: string) => void;
@@ -354,8 +354,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ilerleme, setIlerleme] = useState<Ilerleme>(BOS_ILERLEME);
   const [forum, setForum] = useState<ForumBaslik[]>(FORUM_SEED);
   const [kanallar, setKanallar] = useState<ForumKategori[]>(FORUM_KATEGORILER);
-  const [canliDersler, setCanliDersler] = useState<CanliDers[]>(VARSAYILAN_DERSLER);
-  const [tekrarlar, setTekrarlar] = useState<Tekrar[]>(TEKRARLAR);
+  // dersler/tekrarlar buluttan gelir; boş liste de geçerli veridir (statik
+  // örnekler yalnızca çevrimdışı yedek olarak devreye girer)
+  const [canliDersler, setCanliDersler] = useState<CanliDers[]>([]);
+  const [tekrarlar, setTekrarlar] = useState<Tekrar[]>([]);
   const [yonetici, setYonetici] = useState(false);
   const [siteAyarlar, setSiteAyarlar] = useState<Record<string, string>>({});
   const [bildirimler, setBildirimler] = useState<Bildirim[]>([]);
@@ -433,8 +435,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           supabase.from("site_ayarlar").select("*"),
         ]);
         if (iptal) return;
-        if (!dersler.error && dersler.data?.length) setCanliDersler(dersler.data.map(dersFromRow));
-        if (!tekrarRes.error && tekrarRes.data?.length) setTekrarlar(tekrarRes.data.map(tekrarFromRow));
+        if (!dersler.error && dersler.data) setCanliDersler(dersler.data.map(dersFromRow));
+        if (!tekrarRes.error && tekrarRes.data) setTekrarlar(tekrarRes.data.map(tekrarFromRow));
         if (!kanalRes.error && kanalRes.data?.length) {
           setKanallar(
             kanalRes.data.map((r: Satir) => ({
@@ -463,7 +465,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {
         if (!iptal) {
           setCevrimici(false);
-          // çevrimdışı: yerel demo oturumu varsa geri yükle
+          // çevrimdışı: statik örnek içerik + yerel demo oturumu varsa geri yükle
+          setCanliDersler(VARSAYILAN_DERSLER);
+          setTekrarlar(TEKRARLAR);
           const yerel = oku<Kullanici | null>("so_yerel_kullanici", null);
           if (yerel) {
             yerelDemo.current = true;
@@ -920,14 +924,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from("site_ayarlar").upsert({ anahtar, deger });
   }, []);
 
-  const dersKaydet: Baglam["dersKaydet"] = useCallback((ders) => {
+  const dersKaydet: Baglam["dersKaydet"] = useCallback(async (ders) => {
     setCanliDersler((o) => {
       const varMi = o.some((d) => d.id === ders.id);
       return varMi ? o.map((d) => (d.id === ders.id ? ders : d)) : [...o, ders];
     });
-    supabase
-      .from("canli_dersler")
-      .upsert({
+    try {
+      const { error } = await supabase.from("canli_dersler").upsert({
         id: ders.id,
         baslik: ders.baslik,
         ders: ders.ders,
@@ -942,8 +945,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         durum: ders.durum ?? "planli",
         oda_kodu: ders.odaKodu ?? null,
         kayit_url: ders.kayitUrl ?? null,
-      })
-      .then(undefined, () => {});
+      });
+      return !error;
+    } catch {
+      return false;
+    }
   }, []);
 
   const dersSil: Baglam["dersSil"] = useCallback((id) => {

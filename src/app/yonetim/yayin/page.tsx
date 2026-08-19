@@ -15,6 +15,7 @@ export default function YonetimYayinOdasi() {
   const [sohbetMetni, setSohbetMetni] = useState("");
   const [sonuc, setSonuc] = useState<{ kayitUrl: string | null; sureDk: number; blob: Blob | null } | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
+  const [duyuruUyari, setDuyuruUyari] = useState(false);
   const sohbetSonu = useRef<HTMLDivElement>(null);
   const onizlemeRef = useRef<HTMLVideoElement>(null);
 
@@ -38,11 +39,29 @@ export default function YonetimYayinOdasi() {
   const dersBilgi = DERS_MAP[ders.ders];
   const hoca = HOCALAR.find((h) => h.id === ders.hocaId);
 
-  const baslat = async () => {
-    const ok = await yayin.yayinBaslat();
-    if (!ok) return;
-    dersKaydet({ ...ders, durum: "canli", odaKodu: `oda-${Date.now()}` });
-    bildirimGonder({
+  // Çevrimdışı yönetici modunda (gerçek oturum yok) yayın açılamaz:
+  // öğrencilere ne CANLI durumu ne bildirim ulaşır.
+  if (!kullanici) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="card p-8 text-center">
+          <Ikon ad="kilit" boy={48} className="mx-auto" />
+          <h1 className="baslik mt-3 text-xl">Canlı yayın için gerçek giriş gerekli</h1>
+          <p className="mt-2 text-sm text-ink/60">
+            Şu an çevrimdışı yönetici modundasın. Yayın açmak, bildirim göndermek ve kayıt
+            yüklemek için Kaptan Köşkü'ne e-posta + şifreyle (internet varken) girmelisin.
+          </p>
+          <Link href="/yonetim/dersler" className="btn btn-amber btn-md mt-5">← Yayın listesine dön</Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Öğrencilerin haberdar olması bu iki yazmaya bağlı: dersi CANLI işaretle +
+  // hedef kitleye bildirim. Başarısızsa uyarı göster, tekrar denenebilsin.
+  const duyur = async (): Promise<boolean> => {
+    const dersOk = await dersKaydet({ ...ders, durum: "canli", odaKodu: ders.odaKodu ?? `oda-${Date.now()}` });
+    const bildirimOk = await bildirimGonder({
       baslik: `🔴 ${ders.baslik} şimdi canlı!`,
       metin: "Ders başladı — katılmak için Online Derslerim'den 'Derse Katıl' de, vak!",
       tur: "canli",
@@ -51,6 +70,15 @@ export default function YonetimYayinOdasi() {
       ogrenciId: ders.ogrenciId,
       yayinId: ders.id,
     });
+    const ok = dersOk && bildirimOk.ok;
+    setDuyuruUyari(!ok);
+    return ok;
+  };
+
+  const baslat = async () => {
+    const ok = await yayin.yayinBaslat();
+    if (!ok) return;
+    await duyur();
   };
 
   const bitir = async () => {
@@ -77,7 +105,7 @@ export default function YonetimYayinOdasi() {
         });
       }
     }
-    dersKaydet({ ...ders, durum: "bitti", kayitUrl });
+    await dersKaydet({ ...ders, durum: "bitti", kayitUrl });
     setSonuc({ kayitUrl, sureDk, blob });
     setYukleniyor(false);
   };
@@ -151,6 +179,18 @@ export default function YonetimYayinOdasi() {
           </button>
         )}
       </div>
+
+      {duyuruUyari && yayinda && (
+        <div className="card flex flex-wrap items-center gap-3 border-2 border-red-300 bg-red-50 p-4">
+          <p className="flex-1 text-sm font-bold text-red-600">
+            ⚠️ Öğrencilere duyuru ulaşmadı! Ders "CANLI" olarak işaretlenemedi ya da bildirim
+            gönderilemedi — öğrenciler yayını göremez. İnternetini kontrol edip tekrar dene.
+          </p>
+          <button onClick={duyur} className="btn btn-md bg-red-500 text-white hover:bg-red-600">
+            Duyuruyu Tekrar Gönder
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         {/* Sol: video + kontroller */}

@@ -32,7 +32,7 @@ export default function YonetimDersler() {
     ogrencileriYukle().then((liste) => setOgrenciler(liste.map((o) => o.kullanici)));
   }, [gruplariYukle, ogrencileriYukle]);
 
-  const kaydet = (e: React.FormEvent) => {
+  const kaydet = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.baslik.trim()) {
       setMesaj("Başlık boş olamaz.");
@@ -61,7 +61,12 @@ export default function YonetimDersler() {
       grupId: form.hedef === "grup" ? form.grupId : null,
       ogrenciId: form.hedef === "ogrenci" ? form.ogrenciId : null,
     };
-    dersKaydet(ders);
+    const ok = await dersKaydet(ders);
+    if (!ok) {
+      setMesaj("Kaydedilemedi! Bağlantını ve yönetici girişini kontrol et.");
+      setTimeout(() => setMesaj(""), 4000);
+      return;
+    }
     setMesaj(duzenlenen ? "Yayın güncellendi!" : "Canlı yayın açıldı! Öğrenci panellerine düştü.");
     setForm({ ...BOS_FORM });
     setDuzenlenen(null);

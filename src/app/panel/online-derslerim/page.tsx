@@ -34,6 +34,18 @@ export default function OnlineDerslerim() {
         </p>
       </div>
 
+      {dersListesi.length === 0 && (
+        <div className="card p-10 text-center">
+          <Ikon ad="canli" boy={44} className="mx-auto opacity-40" />
+          <p className="baslik mt-3 text-lg text-lacivert/60">
+            Şu an planlanmış canlı ders yok
+          </p>
+          <p className="mt-1 text-sm text-ink/50">
+            Hocan program açtığında burada görünecek ve sana bildirim gelecek, vak!
+          </p>
+        </div>
+      )}
+
       <div className="grid gap-4">
         {dersListesi.map((cd) => {
           const ders = DERS_MAP[cd.ders];
