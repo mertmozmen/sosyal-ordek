@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { Ikon } from "@/components/ikonlar";
 import { DERSLER, DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
-import { useStore } from "@/lib/store";
+import { dersGorunurMu, useStore } from "@/lib/store";
 
 export default function SoruCozumu() {
-  const { ilerleme, dersKatil, canliDersler } = useStore();
-  const oturumlar = canliDersler.filter((d) => d.tur === "soru");
+  const { ilerleme, dersKatil, canliDersler, kullanici, uyelikler } = useStore();
+  const oturumlar = canliDersler.filter(
+    (d) => d.tur === "soru" && dersGorunurMu(d, kullanici?.id, uyelikler)
+  );
   const [soruDers, setSoruDers] = useState("mat");
   const [soruMetin, setSoruMetin] = useState("");
   const [gonderildi, setGonderildi] = useState(false);

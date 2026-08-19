@@ -345,6 +345,9 @@ export function haftaDurumu(gorevler: Record<string, boolean>): number {
   return 28;
 }
 
+export type YayinHedef = "herkes" | "grup" | "ogrenci";
+export type YayinDurum = "planli" | "canli" | "bitti";
+
 export type CanliDers = {
   id: string;
   ders: DersId;
@@ -354,6 +357,13 @@ export type CanliDers = {
   saat: string;
   sure: number;
   tur: "ders" | "soru";
+  // canlı yayın alanları (eski seed kayıtlarında yok → varsayılan herkese açık/planlı)
+  hedef?: YayinHedef;
+  grupId?: string | null;
+  ogrenciId?: string | null;
+  durum?: YayinDurum;
+  odaKodu?: string | null;
+  kayitUrl?: string | null;
 };
 
 export const CANLI_DERSLER: CanliDers[] = [

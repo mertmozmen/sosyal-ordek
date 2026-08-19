@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ikon } from "@/components/ikonlar";
-import { DERSLER, DERS_MAP, GUNLER, HOCALAR, type CanliDers, type DersId } from "@/lib/data";
-import { useStore } from "@/lib/store";
+import { DERSLER, DERS_MAP, GUNLER, HOCALAR, type CanliDers, type DersId, type YayinHedef } from "@/lib/data";
+import { useStore, type Grup, type Kullanici } from "@/lib/store";
 
 const BOS_FORM = {
   baslik: "",
@@ -13,13 +13,23 @@ const BOS_FORM = {
   saat: "19:00",
   sure: 60,
   tur: "ders" as "ders" | "soru",
+  hedef: "herkes" as YayinHedef,
+  grupId: "",
+  ogrenciId: "",
 };
 
 export default function YonetimDersler() {
-  const { canliDersler, dersKaydet, dersSil } = useStore();
+  const { canliDersler, dersKaydet, dersSil, gruplariYukle, ogrencileriYukle } = useStore();
   const [form, setForm] = useState({ ...BOS_FORM });
   const [duzenlenen, setDuzenlenen] = useState<string | null>(null);
   const [mesaj, setMesaj] = useState("");
+  const [gruplar, setGruplar] = useState<Grup[]>([]);
+  const [ogrenciler, setOgrenciler] = useState<Kullanici[]>([]);
+
+  useEffect(() => {
+    gruplariYukle().then(setGruplar);
+    ogrencileriYukle().then((liste) => setOgrenciler(liste.map((o) => o.kullanici)));
+  }, [gruplariYukle, ogrencileriYukle]);
 
   const kaydet = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +37,17 @@ export default function YonetimDersler() {
       setMesaj("Başlık boş olamaz.");
       return;
     }
+    if (form.hedef === "grup" && !form.grupId) {
+      setMesaj("Bir grup seçmelisin.");
+      return;
+    }
+    if (form.hedef === "ogrenci" && !form.ogrenciId) {
+      setMesaj("Bir öğrenci seçmelisin.");
+      return;
+    }
+    const mevcut = duzenlenen ? canliDersler.find((d) => d.id === duzenlenen) : undefined;
     const ders: CanliDers = {
+      ...mevcut,
       id: duzenlenen ?? `yd-${Date.now()}`,
       baslik: form.baslik.trim(),
       ders: form.ders,
@@ -36,6 +56,9 @@ export default function YonetimDersler() {
       saat: form.saat,
       sure: Number(form.sure),
       tur: form.tur,
+      hedef: form.hedef,
+      grupId: form.hedef === "grup" ? form.grupId : null,
+      ogrenciId: form.hedef === "ogrenci" ? form.ogrenciId : null,
     };
     dersKaydet(ders);
     setMesaj(duzenlenen ? "Yayın güncellendi!" : "Canlı yayın açıldı! Öğrenci panellerine düştü.");
@@ -46,7 +69,10 @@ export default function YonetimDersler() {
 
   const duzenle = (d: CanliDers) => {
     setDuzenlenen(d.id);
-    setForm({ baslik: d.baslik, ders: d.ders, hocaId: d.hocaId, gun: d.gun, saat: d.saat, sure: d.sure, tur: d.tur });
+    setForm({
+      baslik: d.baslik, ders: d.ders, hocaId: d.hocaId, gun: d.gun, saat: d.saat, sure: d.sure, tur: d.tur,
+      hedef: d.hedef ?? "herkes", grupId: d.grupId ?? "", ogrenciId: d.ogrenciId ?? "",
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -125,6 +151,47 @@ export default function YonetimDersler() {
             </div>
           </div>
         </div>
+
+        {/* Hedef kitle */}
+        <div className="rounded-2xl bg-cream/70 p-4">
+          <p className="label">Bu yayını kim görecek?</p>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["herkes", "Herkes", "vak"],
+                ["grup", "Belirli grup", "hedef"],
+                ["ogrenci", "Tek öğrenci", "kullanici"],
+              ] as const
+            ).map(([deger, etiket, ikon]) => (
+              <button key={deger} type="button"
+                onClick={() => setForm({ ...form, hedef: deger })}
+                className={`btn btn-sm ${form.hedef === deger ? "btn-lacivert" : "btn-ghost bg-white"}`}>
+                <Ikon ad={ikon} boy={14} /> {etiket}
+              </button>
+            ))}
+            {form.hedef === "grup" && (
+              <select aria-label="Hedef grup" className="input max-w-64" value={form.grupId}
+                onChange={(e) => setForm({ ...form, grupId: e.target.value })}>
+                <option value="">Grup seç...</option>
+                {gruplar.map((g) => (
+                  <option key={g.id} value={g.id}>{g.ad} ({g.uyeler.length} üye)</option>
+                ))}
+              </select>
+            )}
+            {form.hedef === "ogrenci" && (
+              <select aria-label="Hedef öğrenci" className="input max-w-64" value={form.ogrenciId}
+                onChange={(e) => setForm({ ...form, ogrenciId: e.target.value })}>
+                <option value="">Öğrenci seç...</option>
+                {ogrenciler.map((o) => (
+                  <option key={o.id} value={o.id}>{o.ad} ({o.email})</option>
+                ))}
+              </select>
+            )}
+          </div>
+          {form.hedef === "grup" && gruplar.length === 0 && (
+            <p className="mt-2 text-xs text-ink/50">Henüz grup yok — önce "Ders Grupları"ndan bir grup kur.</p>
+          )}
+        </div>
         <div className="flex flex-wrap items-center gap-3">
           <button type="submit" className="btn btn-amber btn-md">
             <Ikon ad={duzenlenen ? "tik" : "canli"} boy={16} />
@@ -160,6 +227,16 @@ export default function YonetimDersler() {
                   <span className={`chip ${d.tur === "ders" ? "bg-lacivert text-white" : "bg-amber text-lacivert-koyu"}`}>
                     {d.tur === "ders" ? "Ders" : "Soru Çözümü"}
                   </span>
+                  {d.hedef === "grup" && (
+                    <span className="chip bg-cream-deep text-lacivert">
+                      Grup: {gruplar.find((g) => g.id === d.grupId)?.ad ?? "—"}
+                    </span>
+                  )}
+                  {d.hedef === "ogrenci" && (
+                    <span className="chip bg-cream-deep text-lacivert">
+                      Özel: {ogrenciler.find((o) => o.id === d.ogrenciId)?.ad ?? "—"}
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-ink/55">
                   {hoca?.ad ?? "—"} · {GUNLER[d.gun]} {d.saat} · {d.sure} dk

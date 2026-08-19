@@ -26,6 +26,7 @@ import {
   type ForumBaslik,
   type ForumKategori,
   type Tekrar,
+  type YayinHedef,
 } from "./data";
 
 export type Kullanici = {
@@ -76,6 +77,27 @@ function gunlukEkle(
     },
   };
 }
+
+export type Grup = {
+  id: string;
+  ad: string;
+  aciklama: string;
+  renk: string;
+  uyeler: string[];
+};
+
+export type Bildirim = {
+  id: string;
+  baslik: string;
+  metin: string;
+  tur: "genel" | "canli";
+  hedef: YayinHedef;
+  grupId: string | null;
+  ogrenciId: string | null;
+  yayinId: string | null;
+  tarih: string;
+  okundu: boolean;
+};
 
 export type GorusmeTalebi = {
   id?: string;
@@ -192,6 +214,27 @@ function dersFromRow(r: Satir): CanliDers {
     saat: r.saat,
     sure: r.sure,
     tur: r.tur,
+    hedef: r.hedef ?? "herkes",
+    grupId: r.grup_id ?? null,
+    ogrenciId: r.ogrenci_id ?? null,
+    durum: r.durum ?? "planli",
+    odaKodu: r.oda_kodu ?? null,
+    kayitUrl: r.kayit_url ?? null,
+  };
+}
+
+function bildirimFromRow(r: Satir, okunanlar: Set<string>): Bildirim {
+  return {
+    id: r.id,
+    baslik: r.baslik,
+    metin: r.metin ?? "",
+    tur: r.tur === "canli" ? "canli" : "genel",
+    hedef: r.hedef ?? "herkes",
+    grupId: r.grup_id ?? null,
+    ogrenciId: r.ogrenci_id ?? null,
+    yayinId: r.yayin_id ?? null,
+    tarih: r.created_at ?? new Date().toISOString(),
+    okundu: okunanlar.has(r.id),
   };
 }
 
@@ -242,6 +285,8 @@ type Baglam = {
   tekrarlar: Tekrar[];
   yonetici: boolean;
   siteAyarlar: Record<string, string>;
+  bildirimler: Bildirim[];
+  uyelikler: string[];
   kayitOl: (veri: {
     ad: string;
     email: string;
@@ -263,6 +308,8 @@ type Baglam = {
   gorusmeTalebiGonder: (veri: GorusmeTalebi) => Promise<{ ok: boolean }>;
   evrimGoruldu: (asamaNo: number) => void;
   verileriSifirla: () => void;
+  bildirimOku: (id: string) => void;
+  tumBildirimleriOku: () => void;
   // yönetim
   yoneticiGiris: (sifre: string) => Promise<boolean>;
   yoneticiCikis: () => void;
@@ -280,6 +327,20 @@ type Baglam = {
   kanalSil: (id: string) => void;
   baslikSil: (id: string) => void;
   mesajSil: (baslikId: string, mesajId: string) => void;
+  bildirimGonder: (veri: {
+    baslik: string;
+    metin?: string;
+    hedef: YayinHedef;
+    grupId?: string | null;
+    ogrenciId?: string | null;
+    tur?: "genel" | "canli";
+    yayinId?: string | null;
+  }) => Promise<{ ok: boolean }>;
+  bildirimSil: (id: string) => Promise<void>;
+  gruplariYukle: () => Promise<Grup[]>;
+  grupKaydet: (grup: { id?: string; ad: string; aciklama?: string; renk?: string }) => Promise<string | null>;
+  grupSil: (id: string) => Promise<void>;
+  grupUyeleriYaz: (grupId: string, ogrenciIds: string[]) => Promise<void>;
 };
 
 const StoreContext = createContext<Baglam | null>(null);
@@ -295,6 +356,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [tekrarlar, setTekrarlar] = useState<Tekrar[]>(TEKRARLAR);
   const [yonetici, setYonetici] = useState(false);
   const [siteAyarlar, setSiteAyarlar] = useState<Record<string, string>>({});
+  const [bildirimler, setBildirimler] = useState<Bildirim[]>([]);
+  const [uyelikler, setUyelikler] = useState<string[]>([]);
   const oturumId = useRef<string | null>(null);
   const yerelDemo = useRef(false);
 
@@ -437,6 +500,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     if (yerelDemo.current) yaz("so_yerel_ilerleme", ilerleme);
   }, [ilerleme, yuklendi]);
+
+  // Bildirimler + grup üyelikleri + canlı yayın güncellemeleri (girişten sonra)
+  const kullaniciId = kullanici?.id ?? null;
+  useEffect(() => {
+    if (!kullaniciId || !oturumId.current) {
+      setBildirimler([]);
+      setUyelikler([]);
+      return;
+    }
+    const uid = oturumId.current;
+    let iptal = false;
+
+    (async () => {
+      const [bilRes, okuRes, uyeRes] = await Promise.all([
+        supabase.from("bildirimler").select("*").order("created_at", { ascending: false }).limit(40),
+        supabase.from("bildirim_okumalar").select("bildirim_id").eq("ogrenci_id", uid),
+        supabase.from("grup_uyeler").select("grup_id").eq("ogrenci_id", uid),
+      ]);
+      if (iptal) return;
+      const okunan = new Set<string>((okuRes.data ?? []).map((r: Satir) => r.bildirim_id));
+      if (!bilRes.error) setBildirimler((bilRes.data ?? []).map((r: Satir) => bildirimFromRow(r, okunan)));
+      if (!uyeRes.error) setUyelikler((uyeRes.data ?? []).map((r: Satir) => r.grup_id));
+    })();
+
+    // RLS realtime'da da geçerli: öğrenciye yalnızca görebildiği bildirimler düşer
+    const kanal = supabase
+      .channel(`so-canli-${uid}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "bildirimler" },
+        (p) => {
+          const yeni = bildirimFromRow(p.new as Satir, new Set());
+          setBildirimler((o) => (o.some((b) => b.id === yeni.id) ? o : [yeni, ...o]));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "canli_dersler" },
+        (p) => {
+          if (p.eventType === "DELETE") {
+            const id = (p.old as Satir)?.id;
+            if (id) setCanliDersler((o) => o.filter((d) => d.id !== id));
+            return;
+          }
+          const ders = dersFromRow(p.new as Satir);
+          setCanliDersler((o) =>
+            o.some((d) => d.id === ders.id) ? o.map((d) => (d.id === ders.id ? ders : d)) : [...o, ders]
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      iptal = true;
+      supabase.removeChannel(kanal);
+    };
+  }, [kullaniciId]);
 
   // Sitede geçirilen süre sayacı
   useEffect(() => {
@@ -805,7 +925,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
     supabase
       .from("canli_dersler")
-      .upsert({ id: ders.id, baslik: ders.baslik, ders: ders.ders, hoca_id: ders.hocaId, gun: ders.gun, saat: ders.saat, sure: ders.sure, tur: ders.tur })
+      .upsert({
+        id: ders.id,
+        baslik: ders.baslik,
+        ders: ders.ders,
+        hoca_id: ders.hocaId,
+        gun: ders.gun,
+        saat: ders.saat,
+        sure: ders.sure,
+        tur: ders.tur,
+        hedef: ders.hedef ?? "herkes",
+        grup_id: ders.grupId ?? null,
+        ogrenci_id: ders.ogrenciId ?? null,
+        durum: ders.durum ?? "planli",
+        oda_kodu: ders.odaKodu ?? null,
+        kayit_url: ders.kayitUrl ?? null,
+      })
       .then(undefined, () => {});
   }, []);
 
@@ -863,6 +998,101 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supabase.from("forum_mesajlar").delete().eq("id", mesajId).then(undefined, () => {});
   }, []);
 
+  // ---- Bildirimler & Gruplar ----
+
+  const bildirimOku: Baglam["bildirimOku"] = useCallback((id) => {
+    setBildirimler((o) => o.map((b) => (b.id === id ? { ...b, okundu: true } : b)));
+    const uid = oturumId.current;
+    if (uid) {
+      supabase
+        .from("bildirim_okumalar")
+        .upsert({ bildirim_id: id, ogrenci_id: uid }, { onConflict: "bildirim_id,ogrenci_id", ignoreDuplicates: true })
+        .then(undefined, () => {});
+    }
+  }, []);
+
+  const tumBildirimleriOku: Baglam["tumBildirimleriOku"] = useCallback(() => {
+    setBildirimler((o) => {
+      const uid = oturumId.current;
+      const okunmamis = o.filter((b) => !b.okundu);
+      if (uid && okunmamis.length) {
+        supabase
+          .from("bildirim_okumalar")
+          .upsert(
+            okunmamis.map((b) => ({ bildirim_id: b.id, ogrenci_id: uid })),
+            { onConflict: "bildirim_id,ogrenci_id", ignoreDuplicates: true }
+          )
+          .then(undefined, () => {});
+      }
+      return okunmamis.length ? o.map((b) => ({ ...b, okundu: true })) : o;
+    });
+  }, []);
+
+  const bildirimGonder: Baglam["bildirimGonder"] = useCallback(async (veri) => {
+    try {
+      const { error } = await supabase.from("bildirimler").insert({
+        baslik: veri.baslik,
+        metin: veri.metin ?? "",
+        tur: veri.tur ?? "genel",
+        hedef: veri.hedef,
+        grup_id: veri.hedef === "grup" ? (veri.grupId ?? null) : null,
+        ogrenci_id: veri.hedef === "ogrenci" ? (veri.ogrenciId ?? null) : null,
+        yayin_id: veri.yayinId ?? null,
+      });
+      if (error) throw error;
+      return { ok: true };
+    } catch {
+      return { ok: false };
+    }
+  }, []);
+
+  const bildirimSil: Baglam["bildirimSil"] = useCallback(async (id) => {
+    setBildirimler((o) => o.filter((b) => b.id !== id));
+    await supabase.from("bildirimler").delete().eq("id", id);
+  }, []);
+
+  const gruplariYukle: Baglam["gruplariYukle"] = useCallback(async () => {
+    const [grupRes, uyeRes] = await Promise.all([
+      supabase.from("gruplar").select("*").order("created_at"),
+      supabase.from("grup_uyeler").select("*"),
+    ]);
+    if (grupRes.error) return [];
+    const uyeMap = new Map<string, string[]>();
+    (uyeRes.data ?? []).forEach((r: Satir) => {
+      uyeMap.set(r.grup_id, [...(uyeMap.get(r.grup_id) ?? []), r.ogrenci_id]);
+    });
+    return (grupRes.data ?? []).map((r: Satir) => ({
+      id: r.id,
+      ad: r.ad,
+      aciklama: r.aciklama ?? "",
+      renk: r.renk ?? "#4E7DE0",
+      uyeler: uyeMap.get(r.id) ?? [],
+    }));
+  }, []);
+
+  const grupKaydet: Baglam["grupKaydet"] = useCallback(async (grup) => {
+    const satir = { ad: grup.ad, aciklama: grup.aciklama ?? "", renk: grup.renk ?? "#4E7DE0" };
+    if (grup.id) {
+      const { error } = await supabase.from("gruplar").update(satir).eq("id", grup.id);
+      return error ? null : grup.id;
+    }
+    const { data, error } = await supabase.from("gruplar").insert(satir).select("id").single();
+    return error ? null : (data as Satir).id;
+  }, []);
+
+  const grupSil: Baglam["grupSil"] = useCallback(async (id) => {
+    await supabase.from("gruplar").delete().eq("id", id);
+  }, []);
+
+  const grupUyeleriYaz: Baglam["grupUyeleriYaz"] = useCallback(async (grupId, ogrenciIds) => {
+    await supabase.from("grup_uyeler").delete().eq("grup_id", grupId);
+    if (ogrenciIds.length) {
+      await supabase
+        .from("grup_uyeler")
+        .insert(ogrenciIds.map((o) => ({ grup_id: grupId, ogrenci_id: o })));
+    }
+  }, []);
+
   return (
     <StoreContext.Provider
       value={{
@@ -876,6 +1106,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         tekrarlar,
         yonetici,
         siteAyarlar,
+        bildirimler,
+        uyelikler,
         kayitOl,
         girisYap,
         demoGiris,
@@ -891,6 +1123,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         gorusmeTalebiGonder,
         evrimGoruldu,
         verileriSifirla,
+        bildirimOku,
+        tumBildirimleriOku,
         yoneticiGiris,
         yoneticiCikis,
         ogrencileriYukle,
@@ -907,6 +1141,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         kanalSil,
         baslikSil,
         mesajSil,
+        bildirimGonder,
+        bildirimSil,
+        gruplariYukle,
+        grupKaydet,
+        grupSil,
+        grupUyeleriYaz,
       }}
     >
       {children}
@@ -918,6 +1158,18 @@ export function useStore() {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error("useStore, AppProvider içinde kullanılmalı");
   return ctx;
+}
+
+/** Bir yayının bu kullanıcıya görünüp görünmeyeceği (hedef: herkes/grup/öğrenci) */
+export function dersGorunurMu(
+  ders: CanliDers,
+  kullaniciId: string | null | undefined,
+  uyelikler: string[]
+): boolean {
+  const hedef = ders.hedef ?? "herkes";
+  if (hedef === "herkes") return true;
+  if (hedef === "grup") return !!ders.grupId && uyelikler.includes(ders.grupId);
+  return !!kullaniciId && ders.ogrenciId === kullaniciId;
 }
 
 export function cozulenSorular(ilerleme: Ilerleme): {

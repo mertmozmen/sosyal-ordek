@@ -10,7 +10,9 @@ import { useStore } from "@/lib/store";
 const MENU: { href: string; ad: string; ikon: IkonAd }[] = [
   { href: "/yonetim", ad: "Genel Bakış", ikon: "grafik" },
   { href: "/yonetim/ogrenciler", ad: "Öğrenciler", ikon: "kullanici" },
+  { href: "/yonetim/gruplar", ad: "Ders Grupları", ikon: "hedef" },
   { href: "/yonetim/dersler", ad: "Canlı Ders & Yayın", ikon: "canli" },
+  { href: "/yonetim/bildirimler", ad: "Bildirimler", ikon: "bildirim" },
   { href: "/yonetim/kayitlar", ad: "Kayıt Yükle", ikon: "yukle" },
   { href: "/yonetim/forum", ad: "Forum Yönetimi", ikon: "forum" },
 ];

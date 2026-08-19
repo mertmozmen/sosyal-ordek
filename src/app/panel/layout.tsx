@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { LogoYatay, OrdekAvatar } from "@/components/Logo";
 import { EvrimKutlama } from "@/components/Evrim";
+import { BildirimZili } from "@/components/Bildirimler";
 import { Ikon, type IkonAd } from "@/components/ikonlar";
 import { useStore, vakPuan } from "@/lib/store";
 import { asamaBul, sonrakiAsama, tamamlananHaftaSayisi } from "@/lib/data";
@@ -113,6 +114,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
       </aside>
 
       <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <BildirimZili />
       <EvrimKutlama />
     </div>
   );

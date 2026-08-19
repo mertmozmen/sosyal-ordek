@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { Ikon } from "@/components/ikonlar";
 import { DERS_MAP, GUNLER, HOCALAR } from "@/lib/data";
-import { useStore } from "@/lib/store";
+import { dersGorunurMu, useStore } from "@/lib/store";
 
 export default function OnlineDerslerim() {
-  const { ilerleme, dersKatil, canliDersler } = useStore();
-  const dersListesi = canliDersler.filter((d) => d.tur === "ders");
+  const { ilerleme, dersKatil, canliDersler, kullanici, uyelikler } = useStore();
+  const dersListesi = canliDersler.filter(
+    (d) => d.tur === "ders" && dersGorunurMu(d, kullanici?.id, uyelikler)
+  );
   const bugun = (new Date().getDay() + 6) % 7;
 
   return (
@@ -54,7 +56,14 @@ export default function OnlineDerslerim() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="baslik text-lg">{cd.baslik}</h2>
+                  {cd.durum === "canli" && (
+                    <span className="chip bg-red-500 text-white">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-white" /> CANLI
+                    </span>
+                  )}
                   {bugunMu && <span className="chip bg-amber text-lacivert-koyu"><Ikon ad="konum" boy={13} /> Bugün</span>}
+                  {cd.hedef === "grup" && <span className="chip bg-lacivert/10 text-lacivert">Grup dersi</span>}
+                  {cd.hedef === "ogrenci" && <span className="chip bg-lacivert text-duck">Sana özel</span>}
                   {katildi && <span className="chip bg-green-100 text-green-700">✓ Katıldın</span>}
                 </div>
                 <p className="mt-1 text-sm text-ink/60">
